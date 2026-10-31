@@ -1,4 +1,4 @@
-package com.metroruta.dominio.estructuras;
+package com.metroruta.structures;
 
 import java.text.Normalizer;
 import java.util.ArrayList;

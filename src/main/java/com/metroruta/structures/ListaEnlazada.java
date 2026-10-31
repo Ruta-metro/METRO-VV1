@@ -1,4 +1,4 @@
-package com.metroruta.dominio.estructuras;
+package com.metroruta.structures;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
