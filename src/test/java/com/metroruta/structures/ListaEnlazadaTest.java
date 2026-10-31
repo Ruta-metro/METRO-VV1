@@ -1,4 +1,4 @@
-package com.metroruta.dominio.estructuras;
+package com.metroruta.structures;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

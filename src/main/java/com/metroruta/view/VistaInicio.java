@@ -1,4 +1,4 @@
-package com.metroruta.presentacion;
+package com.metroruta.view;
 
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
