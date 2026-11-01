@@ -82,4 +82,9 @@ public class Grafo {
     public boolean estaCerrado(String id) {
         return cerrados.contains(id);
     }
+
+    @Override
+    public String toString() {
+        return "Grafo{nodos=" + adyacencia.size() + ", cerrados=" + cerrados.size() + "}";
+    }
 }
