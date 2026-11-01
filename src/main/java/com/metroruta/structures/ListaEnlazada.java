@@ -85,4 +85,14 @@ public class ListaEnlazada<T> implements Iterable<T> {
             }
         };
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[");
+        for (T dato : this) {
+            if (sb.length() > 1) sb.append(", ");
+            sb.append(dato);
+        }
+        return sb.append("]").toString();
+    }
 }
