@@ -53,4 +53,13 @@ public class BusquedaService {
         log.debug("Busqueda '{}': {} resultados", texto.trim(), resultado.size());
         return resultado;
     }
+
+    // igual que buscar pero devuelve como mucho 'maximo' nombres (para la lista de sugerencias)
+    public List<String> buscar(String texto, int maximo) {
+        if (maximo <= 0) {
+            throw new IllegalArgumentException("El maximo debe ser mayor que 0");
+        }
+        List<String> resultado = buscar(texto);
+        return resultado.size() > maximo ? resultado.subList(0, maximo) : resultado;
+    }
 }
