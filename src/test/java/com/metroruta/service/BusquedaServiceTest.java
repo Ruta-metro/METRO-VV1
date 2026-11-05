@@ -1,6 +1,7 @@
 package com.metroruta.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -77,5 +78,21 @@ class BusquedaServiceTest {
         servicio.reconstruir();
         assertEquals(List.of("Santa Lucía"), servicio.buscar("santa"));
         assertTrue(servicio.buscar("pob").isEmpty());
+    }
+
+    @Test
+    void limitaLaCantidadDeResultados() {
+        assertEquals(List.of("Sabaneta", "San Antonio"), servicio.buscar("s", 2));
+    }
+
+    @Test
+    void unTopMayorQueLosResultadosDevuelveTodos() {
+        assertEquals(3, servicio.buscar("san", 10).size());
+    }
+
+    @Test
+    void unTopInvalidoLanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> servicio.buscar("san", 0));
+        assertThrows(IllegalArgumentException.class, () -> servicio.buscar("san", -1));
     }
 }

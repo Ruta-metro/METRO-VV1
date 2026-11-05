@@ -26,7 +26,8 @@ public class DisenoPrincipal extends AppLayout {
         H1 titulo = new H1("MetroRuta");
         titulo.getStyle().set("margin", "0").set("font-size", "1.3rem");
 
-        HorizontalLayout enlaces = new HorizontalLayout(titulo, new RouterLink("Inicio", VistaInicio.class));
+        HorizontalLayout enlaces = new HorizontalLayout(titulo, new 	RouterLink("Inicio", VistaInicio.class),
+        new RouterLink("Buscar estaciones", VistaBuscador.class));
         enlaces.setAlignItems(FlexComponent.Alignment.CENTER);
         // el enlace de administracion solo se muestra al admin (la proteccion real es @RolesAllowed)
         if (esAdmin()) {
