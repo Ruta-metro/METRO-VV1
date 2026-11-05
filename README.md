@@ -14,7 +14,8 @@ Java 21, Spring Boot, Vaadin, PostgreSQL (con Docker) y Maven.
 4. Abrir http://localhost:8080 (la primera vez tarda unos minutos).
 
 ## Usuarios de prueba
-Se agregan cuando esté lista la carga inicial de datos.
+- Administrador: `admin` con la clave `admin123`
+- Usuario normal: `usuario` con la clave `usuario123`
 
 ## Cómo trabajamos
 Tablero y tareas en GitHub Projects. Cada tarea tiene su rama y su Pull Request.
