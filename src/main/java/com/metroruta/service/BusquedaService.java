@@ -49,8 +49,10 @@ public class BusquedaService {
         if (texto == null) {
             return List.of();
         }
+        long inicio = System.nanoTime();
         List<String> resultado = trie.buscarPorPrefijo(texto.trim());
-        log.debug("Busqueda '{}': {} resultados", texto.trim(), resultado.size());
+        log.debug("Busqueda '{}': {} resultados en {} us", texto.trim(), resultado.size(),
+                (System.nanoTime() - inicio) / 1000);
         return resultado;
     }
 

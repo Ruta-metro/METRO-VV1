@@ -28,7 +28,8 @@ public class DisenoPrincipal extends AppLayout {
 
         HorizontalLayout enlaces = new HorizontalLayout(titulo, new 	RouterLink("Inicio", VistaInicio.class),
         new RouterLink("Buscar estaciones", VistaBuscador.class),
-        new RouterLink("Historial", VistaHistorial.class));
+        new RouterLink("Historial", VistaHistorial.class),
+        new RouterLink("Diagrama", VistaDiagrama.class));
         enlaces.setAlignItems(FlexComponent.Alignment.CENTER);
         // el enlace de administracion solo se muestra al admin (la proteccion real es @RolesAllowed)
         if (esAdmin()) {
