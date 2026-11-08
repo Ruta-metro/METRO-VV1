@@ -7,7 +7,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Html;
+import com.vaadin.flow.component.Html;
 
 // muestra el diagrama SVG y lo vuelve a dibujar solo cuando alguien cambia la red
 public class PanelDiagrama extends Div {
