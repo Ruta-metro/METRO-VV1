@@ -87,4 +87,9 @@ public class Grafo {
     public String toString() {
         return "Grafo{nodos=" + adyacencia.size() + ", cerrados=" + cerrados.size() + "}";
     }
+
+    // todos los nodos del grafo (Dijkstra los recorre para hallar los de una estacion)
+    public java.util.Set<String> nodos() {
+        return java.util.Collections.unmodifiableSet(adyacencia.keySet());
+    }
 }
