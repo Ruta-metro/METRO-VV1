@@ -42,6 +42,15 @@ public class RedService {
         return estacion + "|" + linea;
     }
 
+    // las dos partes de un nodo
+    public static String estacionDe(String nodo) {
+        return nodo.substring(0, nodo.indexOf('|'));
+    }
+
+    public static String lineaDe(String nodo) {
+        return nodo.substring(nodo.indexOf('|') + 1);
+    }
+
     public Grafo getGrafo() {
         return grafo;
     }
