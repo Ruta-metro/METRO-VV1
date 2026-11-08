@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.Optional;
@@ -42,7 +43,10 @@ public class VistaAdmin extends VerticalLayout {
         deshacer.addClickListener(evento -> deshacerUltimo());
 
         cerradas.addColumn(nombre -> nombre).setHeader("Estaciones cerradas");
-        add(new H2("Administración"), new H3("Cierres de estaciones"), campo,
+        add(new H2("Administración"),
+                new HorizontalLayout(new RouterLink("Administrar estaciones", VistaEstaciones.class),
+                        new RouterLink("Administrar conexiones", VistaConexiones.class)),
+                new H3("Cierres de estaciones"), campo,
                 new HorizontalLayout(cerrar, reabrir, deshacer), cerradas);
         refrescar();
     }

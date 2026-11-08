@@ -5,14 +5,20 @@ import com.metroruta.dto.Segmento;
 import com.metroruta.model.CriterioRuta;
 import com.metroruta.service.BusquedaService;
 import com.metroruta.service.DetalleService;
+import com.metroruta.service.DiagramaService;
+import com.metroruta.service.DifusorEventos;
 import com.metroruta.service.HistorialService;
 import com.metroruta.service.LlegadaService;
 import com.metroruta.service.RutaService;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -24,34 +30,46 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.security.core.userdetails.UserDetails;
 
-// pantalla principal: se elige origen, destino y criterio y se muestra la ruta
+// pantalla principal: se elige origen, destino y criterio; muestra la ruta, el detalle y el diagrama resaltado
 @Route("")
 @PageTitle("Calcular ruta | MetroRuta")
 @PermitAll
 public class VistaInicio extends VerticalLayout {
 
+    // la ultima consulta, para recalcularla si la red cambia
+    private record Consulta(String origen, String destino, CriterioRuta criterio) {
+    }
+
     private final transient RutaService rutaService;
     private final transient DetalleService detalleService;
     private final transient LlegadaService llegadaService;
     private final transient HistorialService historialService;
+    private final transient DifusorEventos difusor;
     private final transient AuthenticationContext contexto;
 
     private final CampoEstacion origen;
     private final CampoEstacion destino;
     private final RadioButtonGroup<CriterioRuta> criterio = new RadioButtonGroup<>();
     private final Div resultado = new Div();
+    private final PanelDiagrama diagrama;
+
+    private transient Consulta ultimaConsulta;
+    private transient Ruta ultimaRuta;
+    private transient Runnable cancelar;
 
     public VistaInicio(BusquedaService busquedaService, RutaService rutaService, DetalleService detalleService,
                        LlegadaService llegadaService, HistorialService historialService,
-                       AuthenticationContext contexto) {
+                       DiagramaService diagramaService, DifusorEventos difusor, AuthenticationContext contexto) {
         this.rutaService = rutaService;
         this.detalleService = detalleService;
         this.llegadaService = llegadaService;
         this.historialService = historialService;
+        this.difusor = difusor;
         this.contexto = contexto;
 
         origen = new CampoEstacion(busquedaService, "Origen");
         destino = new CampoEstacion(busquedaService, "Destino");
+        diagrama = new PanelDiagrama(diagramaService, difusor);
 
         criterio.setLabel("Criterio");
         criterio.setItems(CriterioRuta.values());
@@ -60,7 +78,7 @@ public class VistaInicio extends VerticalLayout {
 
         Button calcular = new Button("Calcular ruta", evento -> calcular());
         HorizontalLayout campos = new HorizontalLayout(origen, destino);
-        add(new H2("Calcular ruta"), campos, criterio, calcular, resultado);
+        add(new H2("Calcular ruta"), campos, criterio, calcular, resultado, diagrama);
     }
 
     private void calcular() {
@@ -71,18 +89,28 @@ public class VistaInicio extends VerticalLayout {
             mensaje("Elige el origen y el destino de la lista de sugerencias.");
             return;
         }
+        ultimaConsulta = new Consulta(desde.get(), hasta.get(), criterio.getValue());
         try {
             Optional<Ruta> ruta = rutaService.calcular(desde.get(), hasta.get(), criterio.getValue());
             if (ruta.isEmpty()) {
-                mensaje("No hay ruta disponible entre " + desde.get() + " y " + hasta.get()
-                        + ". Puede que una estación del recorrido esté cerrada.");
+                sinRuta();
                 return;
             }
             guardarEnHistorial(ruta.get());
             mostrar(ruta.get());
         } catch (IllegalArgumentException e) {
+            ultimaConsulta = null;
+            ultimaRuta = null;
+            diagrama.mostrarRuta(null);
             mensaje(e.getMessage());
         }
+    }
+
+    private void sinRuta() {
+        ultimaRuta = null;
+        diagrama.mostrarRuta(null);
+        mensaje("No hay ruta disponible entre " + ultimaConsulta.origen() + " y " + ultimaConsulta.destino()
+                + ". Puede que una estación del recorrido esté cerrada.");
     }
 
     private void guardarEnHistorial(Ruta ruta) {
@@ -91,6 +119,8 @@ public class VistaInicio extends VerticalLayout {
     }
 
     private void mostrar(Ruta ruta) {
+        ultimaRuta = ruta;
+        diagrama.mostrarRuta(ruta);
         LocalDateTime salida = llegadaService.ahora();
         LocalDateTime llegada = llegadaService.horaLlegada(salida, ruta);
 
@@ -112,5 +142,50 @@ public class VistaInicio extends VerticalLayout {
         Paragraph parrafo = new Paragraph(texto);
         parrafo.getStyle().set("color", "#b00020");
         resultado.add(parrafo);
+    }
+
+    // alguien cambio la red: se avisa y, si la ruta que se ve cambia, se recalcula
+    private void alCambiarRed(String aviso) {
+        Notification.show(aviso);
+        if (ultimaConsulta == null) {
+            return;
+        }
+        try {
+            Optional<Ruta> nueva = rutaService.calcular(ultimaConsulta.origen(), ultimaConsulta.destino(),
+                    ultimaConsulta.criterio());
+            if (nueva.isEmpty()) {
+                if (ultimaRuta != null) {
+                    resultado.removeAll();
+                    sinRuta();
+                }
+            } else if (ultimaRuta == null || !nueva.get().pasos().equals(ultimaRuta.pasos())) {
+                resultado.removeAll();
+                Paragraph nota = new Paragraph("La ruta cambió: " + aviso);
+                nota.getStyle().set("font-weight", "bold");
+                resultado.add(nota);
+                mostrar(nueva.get());
+            }
+        } catch (IllegalArgumentException e) {
+            // una de las estaciones ya no existe
+            ultimaConsulta = null;
+            ultimaRuta = null;
+            resultado.removeAll();
+            diagrama.mostrarRuta(null);
+            mensaje(e.getMessage());
+        }
+    }
+
+    @Override
+    protected void onAttach(AttachEvent evento) {
+        UI ui = evento.getUI();
+        cancelar = difusor.suscribir(aviso -> ui.access(() -> alCambiarRed(aviso)));
+    }
+
+    @Override
+    protected void onDetach(DetachEvent evento) {
+        if (cancelar != null) {
+            cancelar.run();
+            cancelar = null;
+        }
     }
 }
