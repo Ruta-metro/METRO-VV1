@@ -50,6 +50,7 @@ public class CierreService {
     // devuelve un texto con lo que se deshizo
     public synchronized String deshacer(String usuario) {
         if (acciones.estaVacia()) {
+		log.warn("{} intentó deshacer, pero no hay cambios guardados", 			usuario);
             throw new IllegalStateException("No hay nada que deshacer");
         }
         Accion ultima = acciones.desapilar();
@@ -88,6 +89,7 @@ public class CierreService {
         Estacion estacion = estacionRepository.findByNombreIgnoreCase(nombre.trim())
                 .orElseThrow(() -> new IllegalArgumentException("La estación " + nombre + " no existe"));
         if (estacion.isCerrada() == cerrar) {
+		log.warn("{} intentó {} la estación {}, pero ya estaba así", 			usuario, cerrar ? "cerrar" : "reabrir", estacion.getNombre());
             throw new IllegalStateException("La estación " + estacion.getNombre()
                     + (cerrar ? " ya está cerrada" : " ya está abierta"));
         }
@@ -103,6 +105,5 @@ public class CierreService {
         // el grafo se arma de nuevo y las rutas siguientes ya cuentan con el cambio
         redService.reconstruir();
         difusor.emitir("La estación " + estacion.getNombre() + (cerrar ? " fue cerrada" : " fue reabierta"));
-        log.info("{} {} la estación {}", usuario, cerrar ? "cerró" : "reabrió", estacion.getNombre());
-    }
+                log.info("{} {} la estación {}{}", usuario, cerrar ? "cerró" : "reabrió", estacion.getNombre(), registrar ? "" : " (al deshacer)");    }
 }
