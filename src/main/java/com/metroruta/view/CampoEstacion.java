@@ -30,7 +30,8 @@ public class CampoEstacion extends VerticalLayout {
         campo.setLabel(etiqueta);
         campo.setPlaceholder("Escribe el nombre de la estación");
         campo.setClearButtonVisible(true);
-        campo.setWidth("20rem");
+        campo.setWidthFull();
+        addClassName("station-field");
         // EAGER: busca en cada letra que se escribe
         campo.setValueChangeMode(ValueChangeMode.EAGER);
         campo.addValueChangeListener(evento -> alEscribir(evento.getValue()));

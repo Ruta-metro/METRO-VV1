@@ -20,6 +20,7 @@ public class SeguridadConfig {
     // vaadin ya sabe proteger sus vistas, solo le decimos cual es la pantalla de login
     @Bean
     SecurityFilterChain cadenaSeguridad(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(reglas -> reglas.requestMatchers("/styles/metro.css").permitAll());
         http.with(VaadinSecurityConfigurer.vaadin(), configurador -> configurador.loginView(VistaLogin.class));
         return http.build();
     }

@@ -76,9 +76,28 @@ public class VistaInicio extends VerticalLayout {
         criterio.setItemLabelGenerator(Textos::criterio);
         criterio.setValue(CriterioRuta.RAPIDA);
 
+        addClassName("metro-home");
         Button calcular = new Button("Calcular ruta", evento -> calcular());
         HorizontalLayout campos = new HorizontalLayout(origen, destino);
-        add(new H2("Calcular ruta"), campos, criterio, calcular, resultado, diagrama);
+        calcular.addClassName("primary-action");
+        campos.addClassName("station-fields");
+        resultado.addClassName("route-result");
+        resultado.getElement().setAttribute("aria-live", "polite");
+        Div hero = new Div(new Paragraph("MEDELLÍN · UN VALLE, MUCHOS CAMINOS"),
+                new H2("Tu próximo destino empieza aquí."),
+                new Paragraph("Conecta la ciudad a tu manera. Encuentra tu recorrido en metro, tranvía y metrocable."));
+        hero.addClassName("metro-hero");
+        Div planificador = new Div(new Paragraph("01 / PLANEA TU VIAJE"), new H3("¿A dónde vamos?"),
+                campos, criterio, calcular, resultado);
+        planificador.addClassName("planner-card");
+        Div mapa = new Div(new Paragraph("02 / EXPLORA LA RED"), new H3("La ciudad, conectada."),
+                new Paragraph("Tu recorrido aparecerá resaltado en el mapa. Las estaciones cerradas se muestran en rojo."), diagrama);
+        mapa.addClassName("map-card");
+        Div contenido = new Div(planificador, mapa);
+        contenido.addClassName("planner-grid");
+        Paragraph pie = new Paragraph("MetroRuta Medellín · Proyecto académico · Tiempos de viaje estimados");
+        pie.addClassName("metro-footer");
+        add(hero, contenido, pie);
     }
 
     private void calcular() {

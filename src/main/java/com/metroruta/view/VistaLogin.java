@@ -1,6 +1,8 @@
 package com.metroruta.view;
 
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -26,7 +28,14 @@ public class VistaLogin extends VerticalLayout implements BeforeEnterObserver {
         formulario.setAction("login");
         formulario.setI18n(textosEnEspanol());
         formulario.setForgotPasswordButtonVisible(false);
-        add(new H1("MetroRuta Medellín"), formulario);
+        addClassName("metro-login");
+        Div bienvenida = new Div(new Paragraph("METRORUTA / MEDELLÍN"), new H1("La ciudad te espera."),
+                new Paragraph("Cada estación, un nuevo comienzo. Planea tu recorrido y descubre las conexiones del valle."),
+                new Paragraph("METRO  ·  TRANVÍA  ·  METROCABLE"));
+        bienvenida.addClassName("login-story");
+        Div acceso = new Div(formulario);
+        acceso.addClassName("login-card");
+        add(bienvenida, acceso);
     }
 
     private LoginI18n textosEnEspanol() {

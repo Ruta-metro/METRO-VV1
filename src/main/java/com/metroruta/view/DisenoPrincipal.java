@@ -23,6 +23,7 @@ public class DisenoPrincipal extends AppLayout {
     public DisenoPrincipal(AuthenticationContext contexto) {
         this.contexto = contexto;
 
+        addClassName("metro-shell");
         H1 titulo = new H1("MetroRuta");
         titulo.getStyle().set("margin", "0").set("font-size", "1.3rem");
 
@@ -30,6 +31,7 @@ public class DisenoPrincipal extends AppLayout {
         new RouterLink("Buscar estaciones", VistaBuscador.class),
         new RouterLink("Historial", VistaHistorial.class),
         new RouterLink("Diagrama", VistaDiagrama.class));
+        enlaces.addClassName("metro-nav");
         enlaces.setAlignItems(FlexComponent.Alignment.CENTER);
         // el enlace de administracion solo se muestra al admin (la proteccion real es @RolesAllowed)
         if (esAdmin()) {
@@ -39,9 +41,11 @@ public class DisenoPrincipal extends AppLayout {
         String nombre = contexto.getAuthenticatedUser(UserDetails.class).map(UserDetails::getUsername).orElse("");
         Button salir = new Button("Cerrar sesión", evento -> contexto.logout());
         HorizontalLayout sesion = new HorizontalLayout(new Span(nombre), salir);
+        sesion.addClassName("metro-session");
         sesion.setAlignItems(FlexComponent.Alignment.CENTER);
 
         HorizontalLayout encabezado = new HorizontalLayout(enlaces, sesion);
+        encabezado.addClassName("metro-header");
         encabezado.setWidthFull();
         encabezado.setAlignItems(FlexComponent.Alignment.CENTER);
         encabezado.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);

@@ -53,7 +53,7 @@ class DiagramaServiceTest {
         assertTrue(svg.endsWith("</svg>"));
         assertTrue(svg.contains("Niquía"));
         assertTrue(svg.contains("Santo Domingo Savio"));
-        assertEquals(estacionRepository.count(), cantidad(svg, "class=\"estacion\""));
+        assertEquals(estacionRepository.count(), cantidad(svg, "class=\"estacion\"") + cantidad(svg, "class=\"estacion-cerrada\""));
     }
 
     @Test
