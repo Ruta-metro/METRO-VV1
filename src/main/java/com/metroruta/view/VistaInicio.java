@@ -91,7 +91,7 @@ public class VistaInicio extends VerticalLayout {
                 campos, criterio, calcular, resultado);
         planificador.addClassName("planner-card");
         Div mapa = new Div(new H3("Mapa del Metro"),
-                new Paragraph("Tu recorrido aparecerá resaltado en el mapa. Las estaciones cerradas se muestran en rojo."), diagrama);
+                new Paragraph("La ruta empieza en rosa y alterna con lila en cada transbordo. Las estaciones cerradas se muestran en rojo."), diagrama);
         mapa.addClassName("map-card");
         Div contenido = new Div(planificador, mapa);
         contenido.addClassName("planner-grid");
@@ -146,14 +146,19 @@ public class VistaInicio extends VerticalLayout {
         resultado.add(new H3(ruta.origen() + " → " + ruta.destino()));
         resultado.add(new Paragraph(ruta.minutos() + " min en total, " + ruta.transbordos() + " transbordos ("
                 + Textos.criterio(ruta.criterio()) + ")"));
-        resultado.add(new Paragraph("Saliendo ahora llegas a las " + llegadaService.formatear(salida, llegada)));
+        resultado.add(new Paragraph("Salida: " + llegadaService.formatear(salida, salida)
+                + " · Llegada estimada: " + llegadaService.formatear(salida, llegada)));
+        boolean rosa = true;
         for (Segmento segmento : detalleService.armar(ruta)) {
             if (segmento.minutosTransbordoPrevio() > 0) {
                 resultado.add(new Paragraph("Transbordo en " + segmento.estaciones().get(0) + " ("
                         + segmento.minutosTransbordoPrevio() + " min caminando)"));
             }
-            resultado.add(new Paragraph(segmento.linea() + ": " + String.join(" → ", segmento.estaciones())
-                    + " (" + segmento.minutos() + " min)"));
+            Paragraph tramo = new Paragraph(segmento.linea() + ": " + String.join(" → ", segmento.estaciones())
+                    + " (" + segmento.minutos() + " min)");
+            tramo.addClassNames("detalle-tramo", rosa ? "detalle-rosa" : "detalle-lila");
+            resultado.add(tramo);
+            rosa = !rosa;
         }
     }
 

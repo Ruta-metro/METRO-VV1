@@ -78,7 +78,10 @@ class DiagramaServiceTest {
     void elTransbordoNoAgregaUnTramoResaltado() {
         // Cisneros a Alpujarra: un tramo de la B, el transbordo y un tramo de la A
         var ruta = rutaService.calcular("Cisneros", "Alpujarra", CriterioRuta.RAPIDA).orElseThrow();
-        assertEquals(2, cantidad(diagramaService.generarSvg(ruta), "class=\"tramo-ruta\""));
+        String svg = diagramaService.generarSvg(ruta);
+        assertEquals(2, cantidad(svg, "class=\"tramo-ruta\""));
+        assertTrue(svg.contains("stroke=\"#ffc1dc\""));
+        assertTrue(svg.contains("stroke=\"#d8b9ff\""));
     }
 
     @Test

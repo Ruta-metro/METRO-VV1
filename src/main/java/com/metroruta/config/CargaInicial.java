@@ -27,7 +27,7 @@ public class CargaInicial implements ApplicationRunner {
     private record DatosLinea(String nombre, String color, String[] estaciones, int[] minutos) {
     }
 
-    // los minutos son estimados, ver docs/RED_METRO.md
+    // los minutos son estimados, ver README.md
     private static final DatosLinea[] RED = {
         new DatosLinea("Línea A", "#2E9E4F", new String[]{
             "Niquía", "Bello", "Madera", "Acevedo", "Tricentenario", "Caribe", "Universidad",

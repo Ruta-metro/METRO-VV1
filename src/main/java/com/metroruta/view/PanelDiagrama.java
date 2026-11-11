@@ -32,7 +32,7 @@ public class PanelDiagrama extends Div {
         this.difusor = difusor;
         setWidthFull();
         addClassName("metro-map");
-        ventana.addClassName("map-viewport");
+        ventana.addClassNames("map-viewport", "map-fit");
         ventana.getElement().setAttribute("tabindex", "0");
         ventana.getElement().setAttribute("role", "region");
         ventana.getElement().setAttribute("aria-label", "Mapa del Metro");
@@ -70,6 +70,7 @@ public class PanelDiagrama extends Div {
         ventana.getElement().executeJs("""
                 const centroX = (this.scrollLeft + this.clientWidth / 2) / this.scrollWidth;
                 const centroY = (this.scrollTop + this.clientHeight / 2) / this.scrollHeight;
+                this.classList.toggle('map-fit', $1 === 100);
                 $0.style.width = $1 + '%';
                 this.scrollLeft = centroX * this.scrollWidth - this.clientWidth / 2;
                 this.scrollTop = $1 === 100 ? 0 : centroY * this.scrollHeight - this.clientHeight / 2;

@@ -109,13 +109,18 @@ public class DiagramaService {
         List<Conexion> conexiones = conexionRepository.findAll();
 
         Set<String> enRuta = new HashSet<>();
-        Set<String> tramosRuta = new HashSet<>();
+        Map<String, Integer> tramosRuta = new HashMap<>();
+        Set<String> cambiosRuta = new HashSet<>();
+        int etapa = 0;
         if (ruta != null) {
             List<Ruta.Paso> pasos = ruta.pasos();
             for (int i = 0; i < pasos.size(); i++) {
                 enRuta.add(pasos.get(i).estacion());
-                if (i > 0 && !pasos.get(i).transbordo()) {
-                    tramosRuta.add(claveTramo(pasos.get(i - 1).estacion(), pasos.get(i).estacion(), pasos.get(i).linea()));
+                if (pasos.get(i).transbordo()) {
+                    cambiosRuta.add(pasos.get(i).estacion());
+                    etapa++;
+                } else if (i > 0) {
+                    tramosRuta.put(claveTramo(pasos.get(i - 1).estacion(), pasos.get(i).estacion(), pasos.get(i).linea()), etapa);
                 }
             }
         }
@@ -154,24 +159,41 @@ public class DiagramaService {
             }
             String nombre = c.getLinea().getNombre();
             String geometria = geometria(a, b, nombre);
-            boolean resaltado = tramosRuta.contains(claveTramo(a.getNombre(), b.getNombre(), nombre));
-            svg.append(trazo(geometria, resaltado ? "#172d39" : "#fffdf7", resaltado ? 13 : 9,
-                    resaltado ? "tramo-ruta" : "borde-tramo"));
-            svg.append(trazo(geometria, colores.get(nombre), resaltado ? 7 : 5,
-                    ruta != null && !resaltado ? "tramo atenuado" : "tramo"));
+            if (!tramosRuta.containsKey(claveTramo(a.getNombre(), b.getNombre(), nombre))) {
+                svg.append(trazo(geometria, "#fffdf7", 9, "borde-tramo"));
+                svg.append(trazo(geometria, colores.get(nombre), 5, ruta == null ? "tramo" : "tramo atenuado"));
+            }
+        }
+
+        for (Conexion c : conexiones) {
+            Estacion a = porNombre.get(c.getOrigen().getNombre());
+            Estacion b = porNombre.get(c.getDestino().getNombre());
+            String nombre = c.getLinea().getNombre();
+            if (a == null || b == null) {
+                continue;
+            }
+            Integer tramo = tramosRuta.get(claveTramo(a.getNombre(), b.getNombre(), nombre));
+            if (tramo != null) {
+                boolean rosa = tramo % 2 == 0;
+                String geometria = geometria(a, b, nombre);
+                svg.append(trazo(geometria, rosa ? "#a62c67" : "#6f40ab", 14, "borde-ruta"));
+                svg.append(trazo(geometria, rosa ? "#ffc1dc" : "#d8b9ff", 8, "tramo-ruta"));
+            }
         }
 
         for (Estacion e : porNombre.values()) {
             boolean transbordo = lineasPorEstacion.getOrDefault(e.getNombre(), Set.of()).size() > 1;
             boolean usada = enRuta.contains(e.getNombre());
-            int radio = transbordo ? 7 : 4;
+            boolean cambio = cambiosRuta.contains(e.getNombre());
+            int radio = cambio ? 9 : transbordo ? 7 : 4;
             if (e.isCerrada()) {
                 radio = 7;
             }
-            String relleno = e.isCerrada() ? "#d32f2f" : usada ? "#111111" : "#ffffff";
+            String relleno = e.isCerrada() ? "#d32f2f" : cambio ? "#d8b9ff" : usada ? "#fff1f8" : "#ffffff";
             svg.append("<circle class=\"").append(e.isCerrada() ? "estacion-cerrada" : "estacion").append("\" cx=\"")
                     .append(e.getPosX()).append("\" cy=\"").append(e.getPosY()).append("\" r=\"").append(radio)
-                    .append("\" fill=\"").append(relleno).append("\" stroke=\"#111111\" stroke-width=\"")
+                    .append("\" fill=\"").append(relleno).append("\" stroke=\"").append(cambio ? "#a62c67" : usada ? "#6f40ab" : "#172d39")
+                    .append("\" stroke-width=\"")
                     .append(transbordo ? 3 : 2).append("\"/>");
             if (e.isCerrada()) {
                 // una equis blanca sobre el circulo rojo

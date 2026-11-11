@@ -491,3 +491,43 @@ vaadin-login-form vaadin-button {
     max-width: none;
   }
 }
+
+
+.map-viewport.map-fit {
+  overflow: hidden;
+  max-height: none;
+}
+
+.map-fit .mapa-red {
+  max-height: min(62svh, 850px);
+}
+
+.metro-hero::after {
+  border-color: #e3c6ff;
+  box-shadow: 0 0 0 22px #ffc1dc;
+}
+
+.map-card {
+  border-top: 3px solid #dfc5f6;
+}
+
+.route-result:not(:empty) {
+  border-top-color: #eac0d6;
+}
+
+
+.route-result .detalle-tramo {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-inline-start: 3px solid;
+}
+
+.route-result .detalle-rosa {
+  background: #fff1f8;
+  border-color: #c4568d;
+}
+
+.route-result .detalle-lila {
+  background: #f6efff;
+  border-color: #9362c8;
+}
