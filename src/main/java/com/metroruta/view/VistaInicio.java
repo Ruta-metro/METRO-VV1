@@ -90,7 +90,7 @@ public class VistaInicio extends VerticalLayout {
         Div planificador = new Div(new Paragraph("01 / PLANEA TU VIAJE"), new H3("¿A dónde vamos?"),
                 campos, criterio, calcular, resultado);
         planificador.addClassName("planner-card");
-        Div mapa = new Div(new Paragraph("02 / EXPLORA LA RED"), new H3("La ciudad, conectada."),
+        Div mapa = new Div(new H3("Mapa del Metro"),
                 new Paragraph("Tu recorrido aparecerá resaltado en el mapa. Las estaciones cerradas se muestran en rojo."), diagrama);
         mapa.addClassName("map-card");
         Div contenido = new Div(planificador, mapa);

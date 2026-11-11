@@ -1,0 +1,37 @@
+Línea A|Niquía|Bello|558,92 552,94 546,97 539,105 525,118 522,122
+Línea A|Bello|Madera|522,122 519,128 517,133 514,152 516,177
+Línea A|Madera|Acevedo|516,177 516,185 514,189 508,198 507,202 508,220 508,227 503,238
+Línea A|Acevedo|Tricentenario|503,238 501,244 498,248 487,260 483,270 480,275
+Línea A|Tricentenario|Caribe|480,275 476,280 473,291 472,293 467,298 465,301 464,311 462,320
+Línea A|Caribe|Universidad|462,320 458,339 458,342 458,345 460,348 463,350 476,355
+Línea A|Universidad|Hospital|476,355 480,356 484,358 487,362 488,365 488,368 485,376
+Línea A|Hospital|Prado|485,376 480,389 474,403
+Línea A|Prado|Parque Berrío|474,403 469,416 468,424 467,427
+Línea A|Parque Berrío|San Antonio|467,427 461,440
+Línea A|San Antonio|Alpujarra|461,440 457,448 454,456
+Línea A|Alpujarra|Exposiciones|454,456 447,473
+Línea A|Exposiciones|Industriales|447,473 440,493 438,505
+Línea A|Industriales|Poblado|438,505 429,574
+Línea A|Poblado|Aguacatala|429,574 422,621 420,628 414,644
+Línea A|Aguacatala|Ayurá|414,644 413,648 409,663 405,668 398,673
+Línea A|Ayurá|Envigado|398,673 391,679 387,682 374,702 369,708 356,717
+Línea A|Envigado|Itagüí|356,717 340,729 337,731 335,737 331,754 327,759 324,760 318,762
+Línea A|Itagüí|Sabaneta|318,762 308,766 298,774 282,783
+Línea A|Sabaneta|La Estrella|282,783 278,785 264,790 244,801
+Línea B|San Antonio|Cisneros|461,440 440,433
+Línea B|Cisneros|Suramericana|440,433 431,430 426,427 416,420 413,418 410,418
+Línea B|Suramericana|Estadio|410,418 405,417 390,416
+Línea B|Estadio|Floresta|390,416 386,416 381,415 378,413 376,411 373,404 371,401 368,399 365,398 353,396
+Línea B|Floresta|Santa Lucía|353,396 340,393 335,394 330,398
+Línea B|Santa Lucía|San Javier|330,398 323,403 319,405 298,406 296,405 292,403
+Tranvía de Ayacucho|San Antonio|San José|463,441 466,442 470,436 471,436 477,439
+Tranvía de Ayacucho|San José|Pabellón del Agua EPM|477,439 490,446
+Tranvía de Ayacucho|Pabellón del Agua EPM|Bicentenario|490,446 503,452
+Tranvía de Ayacucho|Bicentenario|Buenos Aires|503,452 521,462
+Tranvía de Ayacucho|Buenos Aires|Miraflores|521,462 528,465 529,465 533,458 540,462
+Tranvía de Ayacucho|Miraflores|Loyola|540,462 542,463 544,463 548,467 554,469 555,471
+Tranvía de Ayacucho|Loyola|Alejandro Echavarría|555,471 555,473 559,479 563,482 567,484 568,484
+Tranvía de Ayacucho|Alejandro Echavarría|Oriente|568,484 569,486 568,489 574,494
+Metrocable Línea K|Acevedo|Andalucía|504,236 529,252
+Metrocable Línea K|Andalucía|Popular|529,252 543,256
+Metrocable Línea K|Popular|Santo Domingo Savio|543,256 568,264

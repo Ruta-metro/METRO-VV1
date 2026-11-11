@@ -15,6 +15,7 @@ import jakarta.annotation.security.PermitAll;
 public class VistaDiagrama extends VerticalLayout {
 
     public VistaDiagrama(DiagramaService diagramaService, DifusorEventos difusor) {
-        add(new H2("Diagrama de la red"), new PanelDiagrama(diagramaService, difusor));
+        addClassName("vista-mapa");
+        add(new H2("Mapa del Metro"), new PanelDiagrama(diagramaService, difusor));
     }
 }

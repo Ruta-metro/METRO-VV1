@@ -24,33 +24,33 @@ public class DiagramaService {
     private static final Logger log = LoggerFactory.getLogger(DiagramaService.class);
 
     public static final int ANCHO = 1180;
-    public static final int ALTO = 760;
+    public static final int ALTO = CartografiaMetro.TAMANO;
 
-    // posiciones de las estaciones del Metro (x, y); las nuevas se ubican abajo
-    private static final Map<String, int[]> POSICIONES = new HashMap<>();
+    // Coordenadas de la versión anterior, para migrar solo posiciones automáticas.
+    private static final Map<String, int[]> POSICIONES_ANTERIORES = new HashMap<>();
 
     static {
         String[] lineaA = {"Niquía", "Bello", "Madera", "Acevedo", "Tricentenario", "Caribe", "Universidad",
             "Hospital", "Prado", "Parque Berrío", "San Antonio", "Alpujarra", "Exposiciones", "Industriales",
             "Poblado", "Aguacatala", "Ayurá", "Envigado", "Itagüí", "Sabaneta", "La Estrella"};
         for (int i = 0; i < lineaA.length; i++) {
-            POSICIONES.put(lineaA[i], new int[]{40 + 50 * i, 360});
+            POSICIONES_ANTERIORES.put(lineaA[i], new int[]{40 + 50 * i, 360});
         }
         // Linea B baja hacia la izquierda desde San Antonio
         String[] lineaB = {"Cisneros", "Suramericana", "Estadio", "Floresta", "Santa Lucía", "San Javier"};
         for (int i = 0; i < lineaB.length; i++) {
-            POSICIONES.put(lineaB[i], new int[]{540 - 55 * (i + 1), 360 + 50 * (i + 1)});
+            POSICIONES_ANTERIORES.put(lineaB[i], new int[]{540 - 55 * (i + 1), 360 + 50 * (i + 1)});
         }
         // el tranvia baja hacia la derecha
         String[] tranvia = {"San José", "Pabellón del Agua EPM", "Bicentenario", "Buenos Aires", "Miraflores",
             "Loyola", "Alejandro Echavarría", "Oriente"};
         for (int i = 0; i < tranvia.length; i++) {
-            POSICIONES.put(tranvia[i], new int[]{540 + 55 * (i + 1), 360 + 35 * (i + 1)});
+            POSICIONES_ANTERIORES.put(tranvia[i], new int[]{540 + 55 * (i + 1), 360 + 35 * (i + 1)});
         }
         // el Metrocable K baja desde Acevedo
         String[] metrocable = {"Andalucía", "Popular", "Santo Domingo Savio"};
         for (int i = 0; i < metrocable.length; i++) {
-            POSICIONES.put(metrocable[i], new int[]{190 - 25 * (i + 1), 360 + 60 * (i + 1)});
+            POSICIONES_ANTERIORES.put(metrocable[i], new int[]{190 - 25 * (i + 1), 360 + 60 * (i + 1)});
         }
     }
 
@@ -71,13 +71,15 @@ public class DiagramaService {
     public int asegurarPosiciones() {
         int cambiadas = 0;
         for (Estacion estacion : estacionRepository.findAll()) {
-            if (estacion.getPosX() != null && estacion.getPosY() != null) {
+            var geografia = CartografiaMetro.estacion(estacion.getNombre());
+            int[] anterior = POSICIONES_ANTERIORES.get(estacion.getNombre());
+            boolean vacia = estacion.getPosX() == null || estacion.getPosY() == null;
+            boolean heredada = anterior != null && !vacia
+                    && estacion.getPosX() == anterior[0] && estacion.getPosY() == anterior[1];
+            if (!vacia && !heredada) {
                 continue;
             }
-            int[] posicion = POSICIONES.get(estacion.getNombre());
-            if (posicion == null) {
-                posicion = posicionLibre();
-            }
+            int[] posicion = geografia == null ? posicionLibre() : new int[]{geografia.x(), geografia.y()};
             estacion.setPosX(posicion[0]);
             estacion.setPosY(posicion[1]);
             estacionRepository.save(estacion);
@@ -93,11 +95,11 @@ public class DiagramaService {
     public int[] posicionLibre() {
         int abajo = 0;
         for (Estacion estacion : estacionRepository.findAll()) {
-            if (estacion.getPosY() != null && estacion.getPosY() >= 700) {
+            if (estacion.getPosY() != null && estacion.getPosY() >= 850) {
                 abajo++;
             }
         }
-        return new int[]{40 + 80 * (abajo % 14), 700 + 40 * (abajo / 14)};
+        return new int[]{40 + 110 * (abajo % 8), 850 + 36 * (abajo / 8)};
     }
 
     // ruta puede ser null: entonces solo se dibuja la red
@@ -129,34 +131,43 @@ public class DiagramaService {
         for (Conexion c : conexiones) {
             lineasPorEstacion.computeIfAbsent(c.getOrigen().getNombre(), k -> new HashSet<>()).add(c.getLinea().getNombre());
             lineasPorEstacion.computeIfAbsent(c.getDestino().getNombre(), k -> new HashSet<>()).add(c.getLinea().getNombre());
-            colores.putIfAbsent(c.getLinea().getNombre(), c.getLinea().getColor());
+            colores.putIfAbsent(c.getLinea().getNombre(),
+                    CartografiaMetro.color(c.getLinea().getNombre(), c.getLinea().getColor()));
         }
 
+        int ancho = CartografiaMetro.TAMANO;
+        int alto = CartografiaMetro.TAMANO;
+        for (Estacion estacion : porNombre.values()) {
+            ancho = Math.max(ancho, estacion.getPosX() + 24);
+            alto = Math.max(alto, estacion.getPosY() + 24);
+        }
         StringBuilder svg = new StringBuilder();
-        svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ").append(ANCHO).append(' ').append(ALTO)
-                .append("\" width=\"100%\" style=\"max-width:").append(ANCHO)
-                .append("px;font-family:sans-serif\" role=\"img\" aria-label=\"Diagrama de la red del Metro\">");
+        svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ").append(ancho).append(' ').append(alto)
+                .append("\" width=\"100%\" class=\"mapa-red\" role=\"img\" aria-label=\"Mapa geográfico de la red del Metro de Medellín\">")
+                .append(CartografiaMetro.fondo());
 
-        // primero el resaltado, para que quede debajo de las lineas
         for (Conexion c : conexiones) {
             Estacion a = porNombre.get(c.getOrigen().getNombre());
             Estacion b = porNombre.get(c.getDestino().getNombre());
-            if (a != null && b != null && tramosRuta.contains(claveTramo(a.getNombre(), b.getNombre(), c.getLinea().getNombre()))) {
-                svg.append(linea(a, b, "#111111", 16, "tramo-ruta"));
+            if (a == null || b == null) {
+                continue;
             }
-        }
-        for (Conexion c : conexiones) {
-            Estacion a = porNombre.get(c.getOrigen().getNombre());
-            Estacion b = porNombre.get(c.getDestino().getNombre());
-            if (a != null && b != null) {
-                svg.append(linea(a, b, c.getLinea().getColor(), 8, "tramo"));
-            }
+            String nombre = c.getLinea().getNombre();
+            String geometria = geometria(a, b, nombre);
+            boolean resaltado = tramosRuta.contains(claveTramo(a.getNombre(), b.getNombre(), nombre));
+            svg.append(trazo(geometria, resaltado ? "#172d39" : "#fffdf7", resaltado ? 13 : 9,
+                    resaltado ? "tramo-ruta" : "borde-tramo"));
+            svg.append(trazo(geometria, colores.get(nombre), resaltado ? 7 : 5,
+                    ruta != null && !resaltado ? "tramo atenuado" : "tramo"));
         }
 
         for (Estacion e : porNombre.values()) {
             boolean transbordo = lineasPorEstacion.getOrDefault(e.getNombre(), Set.of()).size() > 1;
             boolean usada = enRuta.contains(e.getNombre());
-            int radio = transbordo ? 10 : 7;
+            int radio = transbordo ? 7 : 4;
+            if (e.isCerrada()) {
+                radio = 7;
+            }
             String relleno = e.isCerrada() ? "#d32f2f" : usada ? "#111111" : "#ffffff";
             svg.append("<circle class=\"").append(e.isCerrada() ? "estacion-cerrada" : "estacion").append("\" cx=\"")
                     .append(e.getPosX()).append("\" cy=\"").append(e.getPosY()).append("\" r=\"").append(radio)
@@ -174,19 +185,10 @@ public class DiagramaService {
         }
 
         for (Estacion e : porNombre.values()) {
-            svg.append(etiqueta(e, lineasPorEstacion.getOrDefault(e.getNombre(), Set.of()), enRuta.contains(e.getNombre())));
+            svg.append(etiqueta(e, enRuta.contains(e.getNombre())));
         }
 
-        // leyenda con las lineas y los simbolos
-        int y = 24;
-        for (Map.Entry<String, String> linea : colores.entrySet()) {
-            svg.append("<rect x=\"20\" y=\"").append(y - 10).append("\" width=\"26\" height=\"8\" fill=\"")
-                    .append(escapar(linea.getValue())).append("\"/><text x=\"54\" y=\"").append(y - 2)
-                    .append("\" font-size=\"13\" fill=\"#222222\">").append(escapar(linea.getKey())).append("</text>");
-            y += 20;
-        }
-        svg.append("<circle cx=\"33\" cy=\"").append(y - 6).append("\" r=\"7\" fill=\"#d32f2f\" stroke=\"#111111\" stroke-width=\"2\"/>")
-                .append("<text x=\"54\" y=\"").append(y - 2).append("\" font-size=\"13\" fill=\"#222222\">Estación cerrada</text>");
+        svg.append(leyenda(colores));
         svg.append("</svg>");
 
         log.info("Diagrama generado: {} estaciones, {} tramos en {} us", porNombre.size(), conexiones.size(),
@@ -194,33 +196,57 @@ public class DiagramaService {
         return svg.toString();
     }
 
-    private String linea(Estacion a, Estacion b, String color, int grosor, String clase) {
-        return "<line class=\"" + clase + "\" x1=\"" + a.getPosX() + "\" y1=\"" + a.getPosY() + "\" x2=\"" + b.getPosX()
-                + "\" y2=\"" + b.getPosY() + "\" stroke=\"" + escapar(color) + "\" stroke-width=\"" + grosor
-                + "\" stroke-linecap=\"round\"/>";
+    private String geometria(Estacion a, Estacion b, String linea) {
+        var vertices = esPosicionCartografica(a) && esPosicionCartografica(b)
+                ? CartografiaMetro.vertices(linea, a.getNombre(), b.getNombre()) : List.<String>of();
+        String medio = vertices.isEmpty() ? "" : String.join(" ", vertices) + " ";
+        return "M" + a.getPosX() + "," + a.getPosY() + " " + medio + b.getPosX() + "," + b.getPosY();
     }
 
-    // la linea A lleva el nombre arriba y en diagonal; las demas al lado
-    private String etiqueta(Estacion e, Set<String> lineas, boolean usada) {
-        String estilo = "font-size=\"12\" fill=\"#222222\"" + (usada ? " font-weight=\"bold\"" : "");
-        boolean enLineaA = e.getPosY() == 360;
-        String texto = escapar(e.getNombre());
-        if (enLineaA) {
-            return "<text transform=\"translate(" + (e.getPosX() + 4) + "," + (e.getPosY() - 16) + ") rotate(-45)\" "
-                    + estilo + ">" + texto + "</text>";
+    private boolean esPosicionCartografica(Estacion estacion) {
+        var ubicacion = CartografiaMetro.estacion(estacion.getNombre());
+        return ubicacion != null && estacion.getPosX() == ubicacion.x() && estacion.getPosY() == ubicacion.y();
+    }
+
+    private String trazo(String geometria, String color, int grosor, String clase) {
+        return "<path class=\"" + clase + "\" d=\"" + geometria + "\" fill=\"none\" stroke=\""
+                + escapar(color) + "\" stroke-width=\"" + grosor + "\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>";
+    }
+
+    private String etiqueta(Estacion estacion, boolean usada) {
+        int x = estacion.getPosX();
+        int y = estacion.getPosY();
+        var ubicacion = CartografiaMetro.estacion(estacion.getNombre());
+        boolean cartografica = esPosicionCartografica(estacion);
+        boolean aLaIzquierda = x > CartografiaMetro.TAMANO - 140;
+        int textoX = cartografica ? ubicacion.textoX() : x + (aLaIzquierda ? -12 : 12);
+        int textoY = cartografica ? ubicacion.textoY() : y + 4;
+        String ancla = cartografica ? ubicacion.ancla() : (aLaIzquierda ? "end" : "start");
+        String guia = "";
+        if (Math.abs(textoX - x) > 18 || Math.abs(textoY - y - 4) > 8) {
+            int finalX = textoX + ("end".equals(ancla) ? 4 : -4);
+            guia = "<path d=\"M" + x + "," + y + " " + finalX + "," + (textoY - 4)
+                    + "\" stroke=\"#84978c\" stroke-width=\"1\" fill=\"none\"/>";
         }
-        boolean enTranvia = e.getPosX() > 540 && e.getPosY() > 360 && e.getPosY() < 700;
-        if (enTranvia) {
-            // el tranvia baja hacia la derecha, el nombre va abajo a la izquierda para no tapar la linea
-            return "<text x=\"" + (e.getPosX() - 10) + "\" y=\"" + (e.getPosY() + 22) + "\" text-anchor=\"end\" " + estilo
-                    + ">" + texto + "</text>";
+        return guia + "<text class=\"etiqueta-estacion\" x=\"" + textoX + "\" y=\"" + textoY
+                + "\" text-anchor=\"" + ancla + "\" font-weight=\"" + (usada ? 800 : 600)
+                + "\">" + escapar(estacion.getNombre()) + "</text>";
+    }
+
+    private String leyenda(Map<String, String> colores) {
+        StringBuilder svg = new StringBuilder("<g class=\"leyenda-mapa\" transform=\"translate(24 24)\">");
+        svg.append("<rect width=\"223\" height=\"").append(46 + colores.size() * 25)
+                .append("\" rx=\"13\" fill=\"#fffdf7\" stroke=\"#dbd8cd\"/>");
+        int y = 26;
+        for (var linea : colores.entrySet()) {
+            svg.append("<path d=\"M15 ").append(y - 4).append("h23\" stroke-width=\"5\" stroke-linecap=\"round\" stroke=\"")
+                    .append(escapar(linea.getValue())).append("\"/><text x=\"48\" y=\"").append(y)
+                    .append("\">").append(escapar(linea.getKey())).append("</text>");
+            y += 25;
         }
-        boolean enLineaB = e.getPosX() >= 200 && e.getPosX() < 540 && e.getPosY() > 360 && e.getPosY() < 700;
-        if (enLineaB) {
-            return "<text x=\"" + (e.getPosX() - 14) + "\" y=\"" + (e.getPosY() + 4) + "\" text-anchor=\"end\" " + estilo + ">"
-                    + texto + "</text>";
-        }
-        return "<text x=\"" + (e.getPosX() + 14) + "\" y=\"" + (e.getPosY() + 4) + "\" " + estilo + ">" + texto + "</text>";
+        return svg.append("<circle cx=\"26\" cy=\"").append(y - 5)
+                .append("\" r=\"5\" fill=\"#d32f2f\"/><text x=\"48\" y=\"").append(y)
+                .append("\">Estación cerrada</text></g>").toString();
     }
 
     // el mismo tramo se escribe igual sin importar el sentido

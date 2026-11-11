@@ -1,0 +1,38 @@
+San Antonio|461|440|448|457|end
+Acevedo|503|238|490|242|end
+Pabellón del Agua EPM|490|446|513|450|start
+Alejandro Echavarría|568|484|581|488|start
+Santo Domingo Savio|568|264|581|268|start
+Niquía|558|93|545|97|end
+Bello|522|122|509|126|end
+Madera|516|177|503|181|end
+Tricentenario|480|275|467|279|end
+Caribe|462|320|449|324|end
+Universidad|476|355|463|359|end
+Hospital|485|376|472|380|end
+Prado|474|403|461|407|end
+Parque Berrío|466|427|479|431|start
+Alpujarra|454|456|441|486|end
+Exposiciones|447|473|460|490|start
+Industriales|438|505|425|509|end
+Poblado|429|574|416|578|end
+Aguacatala|414|644|401|648|end
+Ayurá|398|673|385|677|end
+Envigado|356|717|343|721|end
+Itagüí|318|763|305|767|end
+Sabaneta|282|782|269|786|end
+La Estrella|244|801|231|805|end
+Cisneros|440|433|427|437|end
+Suramericana|410|418|358|422|end
+Estadio|390|416|377|381|end
+Floresta|353|396|317|387|end
+Santa Lucía|330|398|317|363|end
+San Javier|292|403|256|407|end
+San José|477|439|490|404|start
+Bicentenario|503|452|516|511|start
+Buenos Aires|521|462|557|411|start
+Miraflores|540|462|616|505|start
+Loyola|555|471|542|530|end
+Oriente|574|494|587|537|start
+Andalucía|529|252|542|243|start
+Popular|543|256|520|260|end

@@ -137,7 +137,7 @@ a:focus-visible, vaadin-button:focus-visible {
   pointer-events: none;
 }
 
-.metro-hero p:first-child, .planner-card > p:first-child, .map-card > p:first-child, .login-story p:first-child {
+.metro-hero p:first-child, .planner-card > p:first-child, .login-story p:first-child {
   font-size: 11px;
   font-weight: 750;
   letter-spacing: .17em;
@@ -177,7 +177,7 @@ a:focus-visible, vaadin-button:focus-visible {
   box-shadow: 0 8px 30px #183c2605;
 }
 
-.planner-card > p:first-child, .map-card > p:first-child {
+.planner-card > p:first-child {
   color: #548068;
 }
 
@@ -282,10 +282,77 @@ vaadin-radio-button {
   margin-bottom: 8px;
 }
 
-.map-card svg {
+.vista-mapa {
+  max-width: 1060px;
+  margin: auto;
+}
+
+.metro-map {
+  margin-top: 12px;
+  min-width: 0;
+}
+
+.map-controls {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.map-controls vaadin-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
+.map-controls vaadin-button[disabled] {
+  opacity: .55;
+  cursor: default;
+}
+
+.map-viewport {
+  overflow: auto;
+  max-height: 78vh;
+  border: 1px solid #dedacf;
+  border-radius: 14px;
+  background: #f5f3eb;
+}
+
+.map-viewport:focus-visible {
+  outline: 2px solid #08764e;
+  outline-offset: 3px;
+}
+
+.map-viewport .mapa-red {
   display: block;
-  min-width: 620px;
-  margin-top: 18px;
+  width: 100%;
+  height: auto;
+}
+
+.etiqueta-estacion {
+  font-size: 14px;
+  fill: #172d39;
+  paint-order: stroke;
+  stroke: #f9f7ef;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.leyenda-mapa text {
+  fill: #172d39;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tramo.atenuado {
+  opacity: .45;
+}
+
+.map-attribution {
+  margin-top: 8px;
+  color: #586e63;
+  font-size: 11px;
 }
 
 .route-result:not(:empty) {
