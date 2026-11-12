@@ -28,4 +28,6 @@ jobs:
           java-version: '21'
           cache: maven
       - name: Compilar y probar
+        env:
+          METRORUTA_TEST_DATABASE_URL: jdbc:postgresql://127.0.0.1:5432/metroruta
         run: ./mvnw -B verify

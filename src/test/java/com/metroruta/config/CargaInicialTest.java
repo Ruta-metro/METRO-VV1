@@ -41,8 +41,10 @@ class CargaInicialTest {
     }
 
     @Test
-    void cargaLasCuatroLineasYSusEstaciones() {
-        for (String linea : new String[]{"Línea A", "Línea B", "Tranvía de Ayacucho", "Metrocable Línea K"}) {
+    void cargaLasDoceLineasYSusEstaciones() {
+        for (String linea : new String[]{"Línea A", "Línea B", "Tranvía de Ayacucho", "Metrocable Línea K",
+                "Metrocable Línea H", "Metrocable Línea J", "Metrocable Línea L", "Metrocable Línea M",
+                "Metrocable Línea P", "Metroplús Línea 1", "Buses Línea 2", "Buses Línea O"}) {
             assertTrue(lineaRepository.findByNombre(linea).isPresent(), "falta " + linea);
         }
         // una de cada punta de linea
@@ -57,8 +59,8 @@ class CargaInicialTest {
     }
 
     @Test
-    void acevedoUneLaLineaAConElMetrocableK() {
-        assertEquals(Set.of("Línea A", "Metrocable Línea K"), lineasDe("Acevedo"));
+    void acevedoUneLaLineaAConLosMetrocablesKYP() {
+        assertEquals(Set.of("Línea A", "Metrocable Línea K", "Metrocable Línea P"), lineasDe("Acevedo"));
     }
 
     @Test

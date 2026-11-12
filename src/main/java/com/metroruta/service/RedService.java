@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 // arma el grafo en memoria a partir de la base de datos
@@ -25,6 +26,7 @@ public class RedService {
 
     // minutos de caminata de un transbordo (estimado entre 3 y 5)
     public static final int MINUTOS_TRANSBORDO = 4;
+    private final int minutosTransbordo;
 
     private final EstacionRepository estacionRepository;
     private final ConexionRepository conexionRepository;
@@ -32,7 +34,12 @@ public class RedService {
     // volatile: las demas sesiones ven el grafo nuevo apenas se reemplaza
     private volatile Grafo grafo = new Grafo();
 
-    public RedService(EstacionRepository estacionRepository, ConexionRepository conexionRepository) {
+    public RedService(EstacionRepository estacionRepository, ConexionRepository conexionRepository,
+                      @Value("${metroruta.transbordo.minutos:" + MINUTOS_TRANSBORDO + "}") int minutosTransbordo) {
+        if (minutosTransbordo < 3 || minutosTransbordo > 5) {
+            throw new IllegalArgumentException("El tiempo de transbordo debe estar entre 3 y 5 minutos");
+        }
+        this.minutosTransbordo = minutosTransbordo;
         this.estacionRepository = estacionRepository;
         this.conexionRepository = conexionRepository;
     }
@@ -88,7 +95,7 @@ public class RedService {
             for (int i = 0; i < lineas.size(); i++) {
                 for (int j = i + 1; j < lineas.size(); j++) {
                     nuevo.conectar(idNodo(entrada.getKey(), lineas.get(i)),
-                            idNodo(entrada.getKey(), lineas.get(j)), MINUTOS_TRANSBORDO, true);
+                            idNodo(entrada.getKey(), lineas.get(j)), minutosTransbordo, true);
                     transbordos++;
                 }
             }

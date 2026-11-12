@@ -1,0 +1,84 @@
+San Antonio|461|440|425|444|end
+Acevedo|503|238|516|242|start
+Pabellón del Agua EPM|490|446|503|424|start
+Alejandro Echavarría|568|484|581|462|start
+Santo Domingo Savio|568|264|581|268|start
+Niquía|558|93|545|97|end
+Bello|522|122|509|126|end
+Madera|516|177|503|181|end
+Tricentenario|480|275|467|279|end
+Caribe|462|320|449|324|end
+Universidad|476|355|463|359|end
+Hospital|485|376|462|380|end
+Prado|474|403|438|407|end
+Parque Berrío|466|427|502|405|start
+Alpujarra|454|456|441|473|end
+Exposiciones|447|473|434|490|end
+Industriales|438|505|425|522|end
+Poblado|429|574|416|578|end
+Aguacatala|414|644|401|648|end
+Ayurá|398|673|385|677|end
+Envigado|356|717|343|721|end
+Itagüí|318|763|305|767|end
+Sabaneta|282|782|269|786|end
+La Estrella|244|801|231|805|end
+Cisneros|440|433|476|492|start
+Suramericana|410|418|334|422|end
+Estadio|390|416|354|365|end
+Floresta|353|396|340|387|end
+Santa Lucía|330|398|278|402|end
+San Javier|292|403|279|381|end
+San José|477|439|581|443|start
+Bicentenario|503|452|516|511|start
+Buenos Aires|521|462|597|479|start
+Miraflores|540|462|527|541|end
+Loyola|555|471|568|530|start
+Oriente|574|494|597|511|start
+Andalucía|529|252|516|256|end
+Popular|543|256|566|247|start
+Las Torres|588|480|664|497|start
+Villa Sierra|618|487|631|530|start
+Juan XXIII|292|369|279|360|end
+Vallejuelos|291|332|278|336|end
+La Aurora|290|310|277|314|end
+Arví|716|308|703|312|end
+El Pinal|557|447|593|396|start
+Trece de Noviembre|569|438|645|442|start
+SENA Pedregal|469|230|456|247|end
+Doce de Octubre|436|221|449|212|start
+El Progreso|413|215|400|219|end
+Universidad de Medellín|309|503|296|507|end
+Los Alpes|325|502|312|480|end
+La Palma|341|501|328|531|end
+Parque Belén|357|500|370|543|start
+Rosales|379|500|366|559|end
+Fátima|396|499|472|516|start
+Nutibara|413|499|449|558|start
+Plaza Mayor|439|453|303|457|end
+Minorista|447|405|523|383|start
+Chagualo|463|388|539|366|start
+Ruta N|468|376|455|305|end
+Palos Verdes|514|383|527|348|start
+Gardel|517|361|504|339|end
+Manrique|521|340|534|331|start
+Las Esmeraldas|524|320|537|311|start
+Berlín|525|303|502|307|end
+Parque Aranjuez|511|294|524|285|start
+Barrio Colombia|460|509|473|588|start
+San Diego|459|491|446|595|end
+Colón|460|465|473|469|start
+San José Buses|474|440|649|418|start
+La Playa|480|430|616|379|start
+Catedral Metropolitana|488|417|624|346|start
+Prado Buses|496|395|671|399|start
+Cementerio Universal|444|332|408|297|end
+Barrio Córdoba|428|338|405|329|end
+Pilarica|411|339|375|268|end
+Ciudadela Universitaria|388|341|365|245|end
+Facultad de Minas|375|338|200|342|end
+Los Colores|363|353|188|370|end
+Calasanz|358|374|254|433|end
+Los Pinos|350|410|327|440|end
+Laureles|335|443|199|447|end
+Santa Gema|333|467|229|471|end
+Nueva Villa de Aburrá|336|487|313|566|end

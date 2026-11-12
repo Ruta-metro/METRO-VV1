@@ -6,11 +6,17 @@ import com.metroruta.model.Linea;
 import com.metroruta.repository.ConexionRepository;
 import com.metroruta.repository.EstacionRepository;
 import com.metroruta.repository.LineaRepository;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -27,7 +33,7 @@ public class CargaInicial implements ApplicationRunner {
     private record DatosLinea(String nombre, String color, String[] estaciones, int[] minutos) {
     }
 
-    // los minutos son estimados, ver docs/RED_METRO.md
+    // los minutos son estimados, ver README.md
     private static final DatosLinea[] RED = {
         new DatosLinea("Línea A", "#2E9E4F", new String[]{
             "Niquía", "Bello", "Madera", "Acevedo", "Tricentenario", "Caribe", "Universidad",
@@ -43,6 +49,9 @@ public class CargaInicial implements ApplicationRunner {
         new DatosLinea("Metrocable Línea K", "#E0B400", new String[]{
             "Acevedo", "Andalucía", "Popular", "Santo Domingo Savio"}, new int[]{3, 3, 4}),
     };
+
+    @Value("${metroruta.red.ampliada:true}")
+    private boolean ampliarRed;
 
     private final LineaRepository lineaRepository;
     private final EstacionRepository estacionRepository;
@@ -64,6 +73,46 @@ public class CargaInicial implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         cargarSiVacia();
+        if (ampliarRed) {
+            cargarLineasAdicionales();
+        }
+    }
+
+    private void cargarLineasAdicionales() {
+        var recurso = CargaInicial.class.getResourceAsStream("/mapa/lineas-adicionales.txt");
+        if (recurso == null) {
+            throw new IllegalStateException("Falta el inventario de líneas adicionales");
+        }
+        Map<String, Estacion> estaciones = new HashMap<>();
+        estacionRepository.findAll().forEach(estacion -> estaciones.put(estacion.getNombre(), estacion));
+        try (var lector = new BufferedReader(new InputStreamReader(recurso, StandardCharsets.UTF_8))) {
+            for (String fila; (fila = lector.readLine()) != null;) {
+                String[] campos = fila.split("\\|");
+                if (lineaRepository.findByNombre(campos[0]).isPresent()) {
+                    continue;
+                }
+                int[] minutos = Arrays.stream(campos[2].split(",")).mapToInt(Integer::parseInt).toArray();
+                cargarLinea(new DatosLinea(campos[0], campos[1], Arrays.copyOfRange(campos, 3, campos.length), minutos),
+                        estaciones);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private void cargarLinea(DatosLinea datos, Map<String, Estacion> estaciones) {
+        if (datos.minutos().length != datos.estaciones().length - 1) {
+            throw new IllegalStateException("Los minutos de " + datos.nombre() + " no cuadran con sus estaciones");
+        }
+        Linea linea = lineaRepository.save(new Linea(datos.nombre(), datos.color()));
+        for (String nombre : datos.estaciones()) {
+            estaciones.computeIfAbsent(nombre, clave -> estacionRepository.save(new Estacion(clave)));
+        }
+        for (int i = 0; i < datos.minutos().length; i++) {
+            Estacion origen = estaciones.get(datos.estaciones()[i]);
+            Estacion destino = estaciones.get(datos.estaciones()[i + 1]);
+            conexionRepository.save(new Conexion(origen, destino, linea, datos.minutos()[i]));
+        }
     }
 
     // devuelve true si cargo la red y false si ya estaba cargada
@@ -79,24 +128,8 @@ public class CargaInicial implements ApplicationRunner {
         int totalConexiones = 0;
 
         for (DatosLinea datos : RED) {
-            if (datos.minutos().length != datos.estaciones().length - 1) {
-                throw new IllegalStateException("Los minutos de " + datos.nombre() + " no cuadran con sus estaciones");
-            }
-            Linea linea = lineaRepository.save(new Linea(datos.nombre(), datos.color()));
-
-            // una estacion que sale en dos lineas es la misma, ahi esta el transbordo
-            for (String nombre : datos.estaciones()) {
-                if (!estaciones.containsKey(nombre)) {
-                    estaciones.put(nombre, estacionRepository.save(new Estacion(nombre)));
-                }
-            }
-
-            for (int i = 0; i < datos.minutos().length; i++) {
-                Estacion origen = estaciones.get(datos.estaciones()[i]);
-                Estacion destino = estaciones.get(datos.estaciones()[i + 1]);
-                conexionRepository.save(new Conexion(origen, destino, linea, datos.minutos()[i]));
-                totalConexiones++;
-            }
+            cargarLinea(datos, estaciones);
+            totalConexiones += datos.minutos().length;
         }
 
         long ms = (System.nanoTime() - inicio) / 1_000_000;

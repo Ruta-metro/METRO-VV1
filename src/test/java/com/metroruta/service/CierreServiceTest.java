@@ -70,13 +70,13 @@ class CierreServiceTest {
     }
 
     @Test
-    void cerrarUnaEstacionCortaLaRutaYReabrirlaLaDevuelve() {
-        assertTrue(hayRuta("Hospital", "Parque Berrío"));
-        cierreService.cerrar("Prado", USUARIO);
-        assertFalse(hayRuta("Hospital", "Parque Berrío"));
-        assertEquals(List.of("Prado"), cierreService.cerradas());
-        cierreService.reabrir("prado", USUARIO);
-        assertTrue(hayRuta("Hospital", "Parque Berrío"));
+    void cerrarLaUnicaConexionAArviImpideLlegarYReabrirLaRestaura() {
+        assertTrue(hayRuta("Arví", "Popular"));
+        cierreService.cerrar("Santo Domingo Savio", USUARIO);
+        assertFalse(hayRuta("Arví", "Popular"));
+        assertEquals(List.of("Santo Domingo Savio"), cierreService.cerradas());
+        cierreService.reabrir("santo domingo savio", USUARIO);
+        assertTrue(hayRuta("Arví", "Popular"));
         assertTrue(cierreService.cerradas().isEmpty());
     }
 
@@ -132,5 +132,35 @@ class CierreServiceTest {
             cancelar.run();
         }
         assertEquals(List.of("La estación Prado fue cerrada"), avisos);
+    }
+
+    @Test
+    void universidadDeMedellinANiquiaEncuentraDesvioConTresCierres() {
+        // Regresión del recorrido reportado: los cierres se aplican en vivo y en ese orden.
+        for (String cerrada : List.of("Estadio", "San Antonio", "Cisneros")) {
+            cierreService.cerrar(cerrada, USUARIO);
+            for (CriterioRuta criterio : CriterioRuta.values()) {
+                for (boolean inversa : List.of(false, true)) {
+                    var ruta = rutaService.calcular(inversa ? "Niquía" : "Universidad de Medellín",
+                            inversa ? "Universidad de Medellín" : "Niquía", criterio).orElseThrow();
+                    assertTrue(ruta.pasos().stream().noneMatch(p -> cierreService.cerradas().contains(p.estacion())));
+                }
+            }
+        }
+        var desvio = rutaService.calcular("Universidad de Medellín", "Niquía", CriterioRuta.RAPIDA).orElseThrow();
+        assertEquals(62, desvio.minutos());
+        assertEquals(2, desvio.transbordos());
+        assertEquals(List.of("Buses Línea 2", "Metroplús Línea 1", "Línea A"),
+                desvio.pasos().stream().map(p -> p.linea()).distinct().toList());
+
+        // Si se corta también la alternativa por Palos Verdes, la línea O sigue siendo válida.
+        cierreService.cerrar("Palos Verdes", USUARIO);
+        var porCaribe = rutaService.calcular("Universidad de Medellín", "Niquía", CriterioRuta.RAPIDA).orElseThrow();
+        assertTrue(porCaribe.pasos().stream().anyMatch(p -> p.linea().equals("Buses Línea O")));
+        assertTrue(porCaribe.pasos().stream().noneMatch(p -> cierreService.cerradas().contains(p.estacion())));
+
+        cierreService.deshacer(USUARIO);
+        assertEquals(desvio.pasos(), rutaService.calcular("Universidad de Medellín", "Niquía", CriterioRuta.RAPIDA)
+                .orElseThrow().pasos());
     }
 }

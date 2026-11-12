@@ -101,14 +101,15 @@ class RutaServiceTest {
     }
 
     @Test
-    void unaEstacionCerradaCortaLaLineaYAlReabrirVuelveLaRuta() {
+    void cerrarPradoDesviaLaRutaPorMetroplus() {
         Estacion prado = estacionRepository.findByNombreIgnoreCase("Prado").orElseThrow();
         try {
             prado.setCerrada(true);
             estacionRepository.save(prado);
             redService.reconstruir();
-            // Hospital y Parque Berrio estan a los lados de Prado, no hay otro camino
-            assertTrue(rutaService.calcular("Hospital", "Parque Berrío", CriterioRuta.RAPIDA).isEmpty());
+            var desvio = rapida("Hospital", "Parque Berrío");
+            assertTrue(desvio.pasos().stream().noneMatch(paso -> paso.estacion().equals("Prado")));
+            assertTrue(desvio.pasos().stream().anyMatch(paso -> paso.linea().equals("Metroplús Línea 1")));
             assertTrue(rutaService.calcular("Prado", "Hospital", CriterioRuta.RAPIDA).isEmpty());
         } finally {
             prado.setCerrada(false);
@@ -116,5 +117,14 @@ class RutaServiceTest {
             redService.reconstruir();
         }
         assertEquals(4, rapida("Hospital", "Parque Berrío").minutos());
+    }
+    @Test
+    void florestaACaribePermiteElegirEntreTiempoYTransbordos() {
+        var rapida = rapida("Floresta", "Caribe");
+        var directa = rutaService.calcular("Floresta", "Caribe", CriterioRuta.MENOS_TRANSBORDOS).orElseThrow();
+        assertTrue(rapida.minutos() < directa.minutos());
+        assertTrue(rapida.transbordos() > directa.transbordos());
+        assertEquals(0, directa.transbordos());
+        assertTrue(directa.pasos().stream().allMatch(paso -> paso.linea().equals("Buses Línea O")));
     }
 }
