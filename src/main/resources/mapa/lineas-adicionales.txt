@@ -1,0 +1,8 @@
+Metrocable Línea H|#aa367e|3,3|Oriente|Las Torres|Villa Sierra
+Metrocable Línea J|#9b6d13|4,4,4|San Javier|Juan XXIII|Vallejuelos|La Aurora
+Metrocable Línea L|#825c42|15|Santo Domingo Savio|Arví
+Metrocable Línea M|#7945ab|2,2|Miraflores|El Pinal|Trece de Noviembre
+Metrocable Línea P|#be3650|4,4,3|Acevedo|SENA Pedregal|Doce de Octubre|El Progreso
+Metroplús Línea 1|#007b84|2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3|Universidad de Medellín|Los Alpes|La Palma|Parque Belén|Rosales|Fátima|Nutibara|Industriales|Plaza Mayor|Cisneros|Minorista|Chagualo|Ruta N|Hospital|Palos Verdes|Gardel|Manrique|Las Esmeraldas|Berlín|Parque Aranjuez
+Buses Línea 2|#23609d|2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3|Universidad de Medellín|Los Alpes|La Palma|Parque Belén|Rosales|Fátima|Nutibara|Industriales|Barrio Colombia|San Diego|Colón|San José Buses|La Playa|Catedral Metropolitana|Prado Buses|Palos Verdes|Gardel|Manrique|Las Esmeraldas|Berlín|Parque Aranjuez
+Buses Línea O|#ac4c72|3,3,3,3,3,3,3,4,4,4,4,4,4|Caribe|Cementerio Universal|Barrio Córdoba|Pilarica|Ciudadela Universitaria|Facultad de Minas|Los Colores|Calasanz|Floresta|Los Pinos|Laureles|Santa Gema|Nueva Villa de Aburrá|La Palma

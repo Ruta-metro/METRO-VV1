@@ -14,10 +14,11 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -83,10 +84,6 @@ public class VistaInicio extends VerticalLayout {
         campos.addClassName("station-fields");
         resultado.addClassName("route-result");
         resultado.getElement().setAttribute("aria-live", "polite");
-        Div hero = new Div(new Paragraph("MEDELLÍN · UN VALLE, MUCHOS CAMINOS"),
-                new H2("Tu próximo destino empieza aquí."),
-                new Paragraph("Conecta la ciudad a tu manera. Encuentra tu recorrido en metro, tranvía y metrocable."));
-        hero.addClassName("metro-hero");
         Div planificador = new Div(new Paragraph("01 / PLANEA TU VIAJE"), new H3("¿A dónde vamos?"),
                 campos, criterio, calcular, resultado);
         planificador.addClassName("planner-card");
@@ -97,7 +94,7 @@ public class VistaInicio extends VerticalLayout {
         contenido.addClassName("planner-grid");
         Paragraph pie = new Paragraph("MetroRuta Medellín · Proyecto académico · Tiempos de viaje estimados");
         pie.addClassName("metro-footer");
-        add(hero, contenido, pie);
+        add(contenido, pie);
     }
 
     private void calcular() {
@@ -117,6 +114,7 @@ public class VistaInicio extends VerticalLayout {
             }
             guardarEnHistorial(ruta.get());
             mostrar(ruta.get());
+            enfocarResultado();
         } catch (IllegalArgumentException e) {
             ultimaConsulta = null;
             ultimaRuta = null;
@@ -130,6 +128,7 @@ public class VistaInicio extends VerticalLayout {
         diagrama.mostrarRuta(null);
         mensaje("No hay ruta disponible entre " + ultimaConsulta.origen() + " y " + ultimaConsulta.destino()
                 + ". Puede que una estación del recorrido esté cerrada.");
+        enfocarResultado();
     }
 
     private void guardarEnHistorial(Ruta ruta) {
@@ -143,19 +142,34 @@ public class VistaInicio extends VerticalLayout {
         LocalDateTime salida = llegadaService.ahora();
         LocalDateTime llegada = llegadaService.horaLlegada(salida, ruta);
 
-        resultado.add(new H3(ruta.origen() + " → " + ruta.destino()));
+        Button editar = new Button("← Cambiar búsqueda", evento -> resultado.getElement().executeJs("""
+                const panel = this.closest('.planner-card');
+                panel.scrollTo({top: 0, behavior: 'smooth'});
+                """));
+        editar.addClassName("route-edit");
+        resultado.add(editar, new H3(ruta.origen() + " → " + ruta.destino()));
         resultado.add(new Paragraph(ruta.minutos() + " min en total, " + ruta.transbordos() + " transbordos ("
                 + Textos.criterio(ruta.criterio()) + ")"));
         resultado.add(new Paragraph("Salida: " + llegadaService.formatear(salida, salida)
                 + " · Llegada estimada: " + llegadaService.formatear(salida, llegada)));
         boolean rosa = true;
+        int numero = 1;
         for (Segmento segmento : detalleService.armar(ruta)) {
             if (segmento.minutosTransbordoPrevio() > 0) {
-                resultado.add(new Paragraph("Transbordo en " + segmento.estaciones().get(0) + " ("
-                        + segmento.minutosTransbordoPrevio() + " min caminando)"));
+                Paragraph cambio = new Paragraph("Cambia en " + segmento.estaciones().get(0) + " · "
+                        + segmento.minutosTransbordoPrevio() + " min");
+                cambio.addClassName("route-transfer");
+                resultado.add(cambio);
             }
-            Paragraph tramo = new Paragraph(segmento.linea() + ": " + String.join(" → ", segmento.estaciones())
-                    + " (" + segmento.minutos() + " min)");
+            Span linea = new Span(numero++ + ". " + segmento.linea());
+            linea.addClassName("route-line-name");
+            Paragraph extremos = new Paragraph(segmento.estaciones().getFirst() + " → " + segmento.estaciones().getLast());
+            Paragraph duracion = new Paragraph(segmento.minutos() + " min de viaje");
+            duracion.addClassName("route-duration");
+            Details paradas = new Details("Ver " + segmento.estaciones().size() + " paradas",
+                    new Paragraph(String.join(" → ", segmento.estaciones())));
+            paradas.addClassName("route-stops");
+            Div tramo = new Div(linea, extremos, duracion, paradas);
             tramo.addClassNames("detalle-tramo", rosa ? "detalle-rosa" : "detalle-lila");
             resultado.add(tramo);
             rosa = !rosa;
@@ -166,6 +180,18 @@ public class VistaInicio extends VerticalLayout {
         Paragraph parrafo = new Paragraph(texto);
         parrafo.getStyle().set("color", "#b00020");
         resultado.add(parrafo);
+    }
+
+    private void enfocarResultado() {
+        resultado.getElement().executeJs("""
+                requestAnimationFrame(() => {
+                    const panel = this.closest('.planner-card');
+                    if (panel.scrollHeight <= panel.clientHeight) return;
+                    const top = panel.scrollTop + this.getBoundingClientRect().top
+                        - panel.getBoundingClientRect().top - 16;
+                    panel.scrollTo({top, behavior: 'smooth'});
+                });
+                """);
     }
 
     // alguien cambio la red: se avisa y, si la ruta que se ve cambia, se recalcula

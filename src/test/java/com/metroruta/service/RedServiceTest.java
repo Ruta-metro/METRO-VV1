@@ -66,14 +66,14 @@ class RedServiceTest {
     }
 
     @Test
-    void acevedoConectaLaLineaAConElMetrocableK() {
+    void acevedoConectaLaLineaAConLosMetrocablesKYP() {
         Set<String> transbordos = new HashSet<>();
         for (Grafo.Arista a : vecinos(RedService.idNodo("Acevedo", "Línea A"))) {
             if (a.transbordo()) {
                 transbordos.add(a.destino());
             }
         }
-        assertEquals(Set.of("Acevedo|Metrocable Línea K"), transbordos);
+        assertEquals(Set.of("Acevedo|Metrocable Línea K", "Acevedo|Metrocable Línea P"), transbordos);
     }
 
     @Test

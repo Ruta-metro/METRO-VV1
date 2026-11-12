@@ -103,7 +103,18 @@ public class DiagramaService {
     }
 
     // ruta puede ser null: entonces solo se dibuja la red
+    public record Mapa(String svg, Map<String, String> lineas) {}
+
+    private static final Set<String> ESTACIONES_DE_REFERENCIA = Set.of(
+            "Niquía", "Bello", "Acevedo", "Caribe", "Hospital", "San Antonio", "Cisneros", "Floresta",
+            "San Javier", "Miraflores", "Oriente", "Industriales", "Poblado", "Envigado", "La Estrella",
+            "La Palma", "Universidad de Medellín", "Parque Aranjuez");
+
     public String generarSvg(Ruta ruta) {
+        return generarMapa(ruta).svg();
+    }
+
+    public Mapa generarMapa(Ruta ruta) {
         long inicio = System.nanoTime();
         List<Estacion> estaciones = estacionRepository.findAll();
         List<Conexion> conexiones = conexionRepository.findAll();
@@ -132,10 +143,13 @@ public class DiagramaService {
             }
         }
         Map<String, Set<String>> lineasPorEstacion = new HashMap<>();
+        Map<String, Integer> gradoPorEstacion = new HashMap<>();
         Map<String, String> colores = new LinkedHashMap<>();
         for (Conexion c : conexiones) {
             lineasPorEstacion.computeIfAbsent(c.getOrigen().getNombre(), k -> new HashSet<>()).add(c.getLinea().getNombre());
             lineasPorEstacion.computeIfAbsent(c.getDestino().getNombre(), k -> new HashSet<>()).add(c.getLinea().getNombre());
+            gradoPorEstacion.merge(c.getOrigen().getNombre(), 1, Integer::sum);
+            gradoPorEstacion.merge(c.getDestino().getNombre(), 1, Integer::sum);
             colores.putIfAbsent(c.getLinea().getNombre(),
                     CartografiaMetro.color(c.getLinea().getNombre(), c.getLinea().getColor()));
         }
@@ -148,9 +162,11 @@ public class DiagramaService {
         }
         StringBuilder svg = new StringBuilder();
         svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ").append(ancho).append(' ').append(alto)
-                .append("\" width=\"100%\" class=\"mapa-red\" role=\"img\" aria-label=\"Mapa geográfico de la red del Metro de Medellín\">")
-                .append(CartografiaMetro.fondo());
+                .append("\" style=\"--proporcion-mapa:").append((double) ancho / alto)
+                .append("\" class=\"mapa-red\" role=\"img\" aria-label=\"Mapa geográfico de la red del Metro de Medellín\">")
+                .append("<g class=\"fondo-cartografico\">").append(CartografiaMetro.fondo()).append("</g>");
 
+        StringBuilder trazosBase = new StringBuilder();
         for (Conexion c : conexiones) {
             Estacion a = porNombre.get(c.getOrigen().getNombre());
             Estacion b = porNombre.get(c.getDestino().getNombre());
@@ -160,10 +176,18 @@ public class DiagramaService {
             String nombre = c.getLinea().getNombre();
             String geometria = geometria(a, b, nombre);
             if (!tramosRuta.containsKey(claveTramo(a.getNombre(), b.getNombre(), nombre))) {
-                svg.append(trazo(geometria, "#fffdf7", 9, "borde-tramo"));
-                svg.append(trazo(geometria, colores.get(nombre), 5, ruta == null ? "tramo" : "tramo atenuado"));
+                svg.append(trazo(geometria, "#fffdf7", 5, "borde-tramo"));
+                String clase = ruta == null ? "tramo" : "tramo atenuado";
+                clase += switch (nombre) {
+                    case "Buses Línea 2" -> " bus-linea-2";
+                    case "Buses Línea O" -> " bus-linea-o";
+                    default -> "";
+                };
+                trazosBase.append(trazo(geometria, colores.get(nombre), 3, clase));
             }
         }
+
+        svg.append(trazosBase);
 
         for (Conexion c : conexiones) {
             Estacion a = porNombre.get(c.getOrigen().getNombre());
@@ -176,8 +200,8 @@ public class DiagramaService {
             if (tramo != null) {
                 boolean rosa = tramo % 2 == 0;
                 String geometria = geometria(a, b, nombre);
-                svg.append(trazo(geometria, rosa ? "#a62c67" : "#6f40ab", 14, "borde-ruta"));
-                svg.append(trazo(geometria, rosa ? "#ffc1dc" : "#d8b9ff", 8, "tramo-ruta"));
+                svg.append(trazo(geometria, rosa ? "#a62c67" : "#6f40ab", 8, "borde-ruta"));
+                svg.append(trazo(geometria, rosa ? "#ffc1dc" : "#d8b9ff", 5, "tramo-ruta"));
             }
         }
 
@@ -185,37 +209,43 @@ public class DiagramaService {
             boolean transbordo = lineasPorEstacion.getOrDefault(e.getNombre(), Set.of()).size() > 1;
             boolean usada = enRuta.contains(e.getNombre());
             boolean cambio = cambiosRuta.contains(e.getNombre());
-            int radio = cambio ? 9 : transbordo ? 7 : 4;
+            boolean extremo = ruta != null && (e.getNombre().equals(ruta.origen()) || e.getNombre().equals(ruta.destino()));
+            int radio = cambio || extremo ? 5 : transbordo ? 4 : 3;
             if (e.isCerrada()) {
-                radio = 7;
+                radio = 5;
             }
             String relleno = e.isCerrada() ? "#d32f2f" : cambio ? "#d8b9ff" : usada ? "#fff1f8" : "#ffffff";
-            svg.append("<circle class=\"").append(e.isCerrada() ? "estacion-cerrada" : "estacion").append("\" cx=\"")
-                    .append(e.getPosX()).append("\" cy=\"").append(e.getPosY()).append("\" r=\"").append(radio)
+            // El cliente mantiene el marcador en píxeles aunque cambie la escala de la geografía.
+            svg.append("<g class=\"marcador-mapa\" data-estacion=\"").append(escapar(e.getNombre()))
+                    .append("\" data-x=\"").append(e.getPosX()).append("\" data-y=\"").append(e.getPosY())
+                    .append("\" transform=\"translate(").append(e.getPosX()).append(' ').append(e.getPosY()).append(")\">")
+                    .append("<title>").append(escapar(e.getNombre())).append(e.isCerrada() ? " · Cerrada" : "")
+                    .append("</title><circle class=\"").append(e.isCerrada() ? "estacion-cerrada" : "estacion")
+                    .append("\" cx=\"0\" cy=\"0\" r=\"").append(radio)
                     .append("\" fill=\"").append(relleno).append("\" stroke=\"").append(cambio ? "#a62c67" : usada ? "#6f40ab" : "#172d39")
                     .append("\" stroke-width=\"")
-                    .append(transbordo ? 3 : 2).append("\"/>");
+                    .append(cambio ? 2 : 1.4).append("\"/>");
             if (e.isCerrada()) {
-                // una equis blanca sobre el circulo rojo
-                int d = 4;
-                svg.append("<path d=\"M").append(e.getPosX() - d).append(' ').append(e.getPosY() - d).append('L')
-                        .append(e.getPosX() + d).append(' ').append(e.getPosY() + d).append('M')
-                        .append(e.getPosX() + d).append(' ').append(e.getPosY() - d).append('L')
-                        .append(e.getPosX() - d).append(' ').append(e.getPosY() + d)
-                        .append("\" stroke=\"#ffffff\" stroke-width=\"2\"/>");
+                svg.append("<path d=\"M-2.5,-2.5 2.5,2.5 M2.5,-2.5 -2.5,2.5\" stroke=\"#fff\" stroke-width=\"1.6\"/>");
             }
+            svg.append("</g>");
         }
 
         for (Estacion e : porNombre.values()) {
-            svg.append(etiqueta(e, enRuta.contains(e.getNombre())));
+            String nombre = e.getNombre();
+            boolean usada = enRuta.contains(nombre);
+            boolean principal = cambiosRuta.contains(nombre)
+                    || (ruta != null && (nombre.equals(ruta.origen()) || nombre.equals(ruta.destino())));
+            boolean referencia = ESTACIONES_DE_REFERENCIA.contains(nombre)
+                    || gradoPorEstacion.getOrDefault(nombre, 0) == 1;
+            svg.append(etiqueta(e, usada, principal ? 0 : e.isCerrada() ? 1 : referencia ? 2 : usada ? 3 : 4));
         }
 
-        svg.append(leyenda(colores));
         svg.append("</svg>");
 
         log.info("Diagrama generado: {} estaciones, {} tramos en {} us", porNombre.size(), conexiones.size(),
                 (System.nanoTime() - inicio) / 1000);
-        return svg.toString();
+        return new Mapa(svg.toString(), java.util.Collections.unmodifiableMap(colores));
     }
 
     private String geometria(Estacion a, Estacion b, String linea) {
@@ -232,43 +262,18 @@ public class DiagramaService {
 
     private String trazo(String geometria, String color, int grosor, String clase) {
         return "<path class=\"" + clase + "\" d=\"" + geometria + "\" fill=\"none\" stroke=\""
-                + escapar(color) + "\" stroke-width=\"" + grosor + "\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>";
+                + escapar(color) + "\" stroke-width=\"" + grosor + "\" vector-effect=\"non-scaling-stroke\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>";
     }
 
-    private String etiqueta(Estacion estacion, boolean usada) {
+    private String etiqueta(Estacion estacion, boolean usada, int prioridad) {
         int x = estacion.getPosX();
         int y = estacion.getPosY();
         var ubicacion = CartografiaMetro.estacion(estacion.getNombre());
-        boolean cartografica = esPosicionCartografica(estacion);
-        boolean aLaIzquierda = x > CartografiaMetro.TAMANO - 140;
-        int textoX = cartografica ? ubicacion.textoX() : x + (aLaIzquierda ? -12 : 12);
-        int textoY = cartografica ? ubicacion.textoY() : y + 4;
-        String ancla = cartografica ? ubicacion.ancla() : (aLaIzquierda ? "end" : "start");
-        String guia = "";
-        if (Math.abs(textoX - x) > 18 || Math.abs(textoY - y - 4) > 8) {
-            int finalX = textoX + ("end".equals(ancla) ? 4 : -4);
-            guia = "<path d=\"M" + x + "," + y + " " + finalX + "," + (textoY - 4)
-                    + "\" stroke=\"#84978c\" stroke-width=\"1\" fill=\"none\"/>";
-        }
-        return guia + "<text class=\"etiqueta-estacion\" x=\"" + textoX + "\" y=\"" + textoY
-                + "\" text-anchor=\"" + ancla + "\" font-weight=\"" + (usada ? 800 : 600)
-                + "\">" + escapar(estacion.getNombre()) + "</text>";
-    }
-
-    private String leyenda(Map<String, String> colores) {
-        StringBuilder svg = new StringBuilder("<g class=\"leyenda-mapa\" transform=\"translate(24 24)\">");
-        svg.append("<rect width=\"223\" height=\"").append(46 + colores.size() * 25)
-                .append("\" rx=\"13\" fill=\"#fffdf7\" stroke=\"#dbd8cd\"/>");
-        int y = 26;
-        for (var linea : colores.entrySet()) {
-            svg.append("<path d=\"M15 ").append(y - 4).append("h23\" stroke-width=\"5\" stroke-linecap=\"round\" stroke=\"")
-                    .append(escapar(linea.getValue())).append("\"/><text x=\"48\" y=\"").append(y)
-                    .append("\">").append(escapar(linea.getKey())).append("</text>");
-            y += 25;
-        }
-        return svg.append("<circle cx=\"26\" cy=\"").append(y - 5)
-                .append("\" r=\"5\" fill=\"#d32f2f\"/><text x=\"48\" y=\"").append(y)
-                .append("\">Estación cerrada</text></g>").toString();
+        String lado = ubicacion != null ? ubicacion.ancla() : "start";
+        String grupo = "<g class=\"etiqueta-mapa\" data-prioridad=\"" + prioridad
+                + "\" data-x=\"" + x + "\" data-y=\"" + y + "\" data-lado=\"" + lado + "\">";
+        return grupo + "<text class=\"etiqueta-estacion\" font-weight=\"" + (usada ? 700 : 500)
+                + "\">" + escapar(estacion.getNombre()) + "</text></g>";
     }
 
     // el mismo tramo se escribe igual sin importar el sentido

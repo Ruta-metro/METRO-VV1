@@ -35,3 +35,66 @@ Tranvía de Ayacucho|Alejandro Echavarría|Oriente|568,484 569,486 568,489 574,4
 Metrocable Línea K|Acevedo|Andalucía|504,236 529,252
 Metrocable Línea K|Andalucía|Popular|529,252 543,256
 Metrocable Línea K|Popular|Santo Domingo Savio|543,256 568,264
+Metrocable Línea H|Oriente|Las Torres|575,493 588,480
+Metrocable Línea H|Las Torres|Villa Sierra|588,480 618,487
+Metrocable Línea J|San Javier|Juan XXIII|293,403 292,369
+Metrocable Línea J|Juan XXIII|Vallejuelos|292,369 291,332
+Metrocable Línea J|Vallejuelos|La Aurora|291,332 290,310
+Metrocable Línea L|Santo Domingo Savio|Arví|567,265 716,308
+Metrocable Línea M|Miraflores|El Pinal|540,461 557,447
+Metrocable Línea M|El Pinal|Trece de Noviembre|557,447 569,438
+Metrocable Línea P|Acevedo|SENA Pedregal|502,239 469,230
+Metrocable Línea P|SENA Pedregal|Doce de Octubre|469,230 436,221
+Metrocable Línea P|Doce de Octubre|El Progreso|436,221 413,215
+Metroplús Línea 1|Universidad de Medellín|Los Alpes|309,503 312,503 313,501 319,501 324,502 325,502
+Metroplús Línea 1|Los Alpes|La Palma|325,502 324,502 319,501 313,501 312,503 308,503 308,502 323,501 337,501 341,501
+Metroplús Línea 1|La Palma|Parque Belén|341,501 357,500
+Metroplús Línea 1|Parque Belén|Rosales|357,500 379,500
+Metroplús Línea 1|Rosales|Fátima|379,500 396,499
+Metroplús Línea 1|Fátima|Nutibara|396,499 413,499
+Metroplús Línea 1|Nutibara|Industriales|413,499 434,504
+Metroplús Línea 1|Industriales|Plaza Mayor|434,504 434,500 434,497 435,490 435,489 432,488 432,487 433,482 436,476 439,467 439,453
+Metroplús Línea 1|Plaza Mayor|Cisneros|439,453 440,426
+Metroplús Línea 1|Cisneros|Minorista|440,426 440,424 441,413 441,411 447,405
+Metroplús Línea 1|Minorista|Chagualo|447,405 463,388
+Metroplús Línea 1|Chagualo|Ruta N|463,388 468,376
+Metroplús Línea 1|Ruta N|Hospital|468,376 485,376
+Metroplús Línea 1|Hospital|Palos Verdes|485,376 514,383
+Metroplús Línea 1|Palos Verdes|Gardel|514,383 517,361
+Metroplús Línea 1|Gardel|Manrique|517,361 518,357 521,340
+Metroplús Línea 1|Manrique|Las Esmeraldas|521,340 524,320
+Metroplús Línea 1|Las Esmeraldas|Berlín|524,320 526,308 525,305 525,303
+Metroplús Línea 1|Berlín|Parque Aranjuez|525,303 525,299 525,298 521,297 513,297 513,295 513,292 512,292 511,293 511,294
+Buses Línea 2|Universidad de Medellín|Los Alpes|309,503 308,503 308,502 309,501 319,501 323,501 325,501
+Buses Línea 2|Los Alpes|La Palma|325,501 337,501 341,501
+Buses Línea 2|La Palma|Parque Belén|341,501 357,500
+Buses Línea 2|Parque Belén|Rosales|357,500 379,499
+Buses Línea 2|Rosales|Fátima|379,499 396,499
+Buses Línea 2|Fátima|Nutibara|396,499 413,498
+Buses Línea 2|Nutibara|Industriales|418,498 418,499 430,498 434,499 434,504
+Buses Línea 2|Industriales|Barrio Colombia|434,504 460,509
+Buses Línea 2|Barrio Colombia|San Diego|460,509 459,491
+Buses Línea 2|San Diego|Colón|459,491 458,475 458,471 459,467 460,465
+Buses Línea 2|Colón|San José Buses|460,465 474,440
+Buses Línea 2|San José Buses|La Playa|474,440 480,430
+Buses Línea 2|La Playa|Catedral Metropolitana|480,430 488,417
+Buses Línea 2|Catedral Metropolitana|Prado Buses|488,417 496,395
+Buses Línea 2|Prado Buses|Palos Verdes|496,395 514,383
+Buses Línea 2|Palos Verdes|Gardel|513,383 515,379 517,361
+Buses Línea 2|Gardel|Manrique|517,361 517,359 520,340
+Buses Línea 2|Manrique|Las Esmeraldas|520,340 524,320
+Buses Línea 2|Las Esmeraldas|Berlín|524,320 526,309 525,305 525,303
+Buses Línea 2|Berlín|Parque Aranjuez|525,303 525,299 522,297 513,297 513,295 513,292 511,292 511,294
+Buses Línea O|Caribe|Cementerio Universal|458,324 457,330 453,331 452,334 451,335 450,334 450,330 449,330 449,328 447,331 444,332
+Buses Línea O|Cementerio Universal|Barrio Córdoba|444,332 428,338
+Buses Línea O|Barrio Córdoba|Pilarica|427,338 425,339 416,339 411,339
+Buses Línea O|Pilarica|Ciudadela Universitaria|411,339 409,339 402,342 398,343 392,341 390,341 388,341
+Buses Línea O|Ciudadela Universitaria|Facultad de Minas|388,341 375,338
+Buses Línea O|Facultad de Minas|Los Colores|371,340 368,345
+Buses Línea O|Los Colores|Calasanz|363,353 358,374
+Buses Línea O|Calasanz|Floresta|358,374 358,375 359,377 357,379 353,398
+Buses Línea O|Floresta|Los Pinos|353,398 350,410
+Buses Línea O|Los Pinos|Laureles|350,410 347,414 341,418 339,420 337,422 336,426 335,443
+Buses Línea O|Laureles|Santa Gema|335,443 335,450 334,454 335,455 334,456 333,467
+Buses Línea O|Santa Gema|Nueva Villa de Aburrá|333,467 333,470 334,472 333,474 333,477 333,479 336,484 336,487
+Buses Línea O|Nueva Villa de Aburrá|La Palma|336,487 337,496

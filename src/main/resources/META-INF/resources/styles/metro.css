@@ -107,15 +107,15 @@ a:focus-visible, vaadin-button:focus-visible {
 }
 
 .metro-home {
-  max-width: 1480px;
+  max-width: 1760px;
   margin: auto;
-  padding: 34px 4vw 20px;
-  gap: 24px;
+  padding: 22px 3vw 18px;
+  gap: 20px;
 }
 
 .metro-hero {
   width: 100%;
-  padding: 38px 42px;
+  padding: 20px 28px;
   border-radius: 22px;
   background: #103e30;
   color: #fff;
@@ -148,8 +148,8 @@ a:focus-visible, vaadin-button:focus-visible {
 }
 
 .metro-hero h2 {
-  font-size: clamp(30px, 3.2vw, 48px);
-  margin: 12px 0;
+  font-size: clamp(26px, 2.4vw, 34px);
+  margin: 8px 0;
   line-height: 1.1;
   max-width: 780px;
 }
@@ -162,10 +162,41 @@ a:focus-visible, vaadin-button:focus-visible {
 
 .planner-grid {
   display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
+  grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
   width: 100%;
   gap: 24px;
   align-items: start;
+  height: calc(100svh - 165px);
+  min-height: 490px;
+}
+
+.planner-card {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.map-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-card > .metro-map {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.map-card .map-viewport {
+  flex: 1;
+  height: auto;
+  min-height: 220px;
+}
+
+.map-card .map-controls, .map-card .map-help, .map-card .map-attribution {
+  flex-shrink: 0;
 }
 
 .planner-card, .map-card {
@@ -283,7 +314,7 @@ vaadin-radio-button {
 }
 
 .vista-mapa {
-  max-width: 1060px;
+  max-width: 1480px;
   margin: auto;
 }
 
@@ -312,11 +343,12 @@ vaadin-radio-button {
 }
 
 .map-viewport {
-  overflow: auto;
-  max-height: 78vh;
-  border: 1px solid #dedacf;
-  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+  height: clamp(350px, calc(100svh - 455px), 760px);
   background: #f5f3eb;
+  border: 1px solid #e5e6df;
+  border-radius: 14px;
 }
 
 .map-viewport:focus-visible {
@@ -324,25 +356,108 @@ vaadin-radio-button {
   outline-offset: 3px;
 }
 
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.map-canvas > div {
+  width: 100%;
+  height: 100%;
+}
+
 .map-viewport .mapa-red {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  background: #f5f3eb;
 }
 
 .etiqueta-estacion {
-  font-size: 14px;
+  font-size: 12px;
+  letter-spacing: 0;
   fill: #172d39;
   paint-order: stroke;
   stroke: #f9f7ef;
-  stroke-width: 3px;
+  stroke-width: 4px;
   stroke-linejoin: round;
 }
 
-.leyenda-mapa text {
-  fill: #172d39;
-  font-size: 15px;
-  font-weight: 600;
+.fondo-cartografico {
+  opacity: .38;
+  pointer-events: none;
+}
+
+.fondo-cartografico path {
+  vector-effect: non-scaling-stroke;
+}
+
+.etiqueta-mapa {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.marcador-mapa {
+  cursor: help;
+}
+
+.map-zoomed {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.map-dragging, .map-dragging .marcador-mapa {
+  cursor: grabbing;
+}
+
+.map-north {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  color: #554262;
+  background: #fff9;
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.map-help {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #62766b;
+}
+
+.vista-mapa .map-viewport {
+  height: clamp(400px, calc(100svh - 260px), 850px);
+}
+
+.map-legend {
+  margin-inline-start: auto;
+  max-width: 100%;
+}
+
+.map-legend-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(155px, 100%), 1fr));
+  gap: 8px 16px;
+  width: min(440px, 74vw);
+  padding: 12px 4px;
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-legend-color {
+  width: 15px;
+  height: 4px;
+  flex: 0 0 15px;
+  border-radius: 4px;
 }
 
 .tramo.atenuado {
@@ -458,6 +573,18 @@ vaadin-login-form vaadin-button {
 
   .planner-grid {
     grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .planner-card, .map-card {
+    height: auto;
+    overflow: visible;
+  }
+
+  .map-card .map-viewport {
+    flex: none;
+    height: 65svh;
+    min-height: 380px;
   }
 
   .metro-header {
@@ -493,15 +620,6 @@ vaadin-login-form vaadin-button {
 }
 
 
-.map-viewport.map-fit {
-  overflow: hidden;
-  max-height: none;
-}
-
-.map-fit .mapa-red {
-  max-height: min(62svh, 850px);
-}
-
 .metro-hero::after {
   border-color: #e3c6ff;
   box-shadow: 0 0 0 22px #ffc1dc;
@@ -517,9 +635,37 @@ vaadin-login-form vaadin-button {
 
 
 .route-result .detalle-tramo {
-  padding: 8px 12px;
+  padding: 12px 14px;
   border-radius: 8px;
   border-inline-start: 3px solid;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.route-edit {
+  font-size: 12px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.route-line-name {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.route-duration, .route-transfer, .route-stops {
+  color: #626b69;
+  font-size: 12px;
+}
+
+.route-transfer {
+  margin: 12px 0 0;
+  padding-inline-start: 14px;
+}
+
+.route-stops {
+  margin-top: 6px;
 }
 
 .route-result .detalle-rosa {
@@ -530,4 +676,13 @@ vaadin-login-form vaadin-button {
 .route-result .detalle-lila {
   background: #f6efff;
   border-color: #9362c8;
+}
+
+
+.mapa-red .bus-linea-2 {
+  stroke-dasharray: 7 6;
+}
+
+.mapa-red .bus-linea-o {
+  stroke-dasharray: 3 4;
 }
